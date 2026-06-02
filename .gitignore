@@ -1,0 +1,18 @@
+# Local notes / personal docs
+local/
+*.local.md
+
+# Build
+target/
+
+# Local application data
+data/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+Thumbs.db
+Desktop.ini

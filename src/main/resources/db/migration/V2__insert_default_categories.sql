@@ -1,0 +1,16 @@
+INSERT OR IGNORE INTO categories (name, type, color, is_default, created_at) VALUES
+('Salário', 'INCOME', '#22C55E', 1, strftime('%Y-%m-%dT%H:%M:%f','now')),
+('Freelance', 'INCOME', '#10B981', 1, strftime('%Y-%m-%dT%H:%M:%f','now')),
+('Investimentos', 'INCOME', '#00E5FF', 1, strftime('%Y-%m-%dT%H:%M:%f','now')),
+('Presente', 'INCOME', '#FFD700', 1, strftime('%Y-%m-%dT%H:%M:%f','now')),
+('Outras receitas', 'INCOME', '#84CC16', 1, strftime('%Y-%m-%dT%H:%M:%f','now')),
+('Alimentação', 'EXPENSE', '#EF4444', 1, strftime('%Y-%m-%dT%H:%M:%f','now')),
+('Transporte', 'EXPENSE', '#F97316', 1, strftime('%Y-%m-%dT%H:%M:%f','now')),
+('Moradia', 'EXPENSE', '#6366F1', 1, strftime('%Y-%m-%dT%H:%M:%f','now')),
+('Saúde', 'EXPENSE', '#EC4899', 1, strftime('%Y-%m-%dT%H:%M:%f','now')),
+('Educação', 'EXPENSE', '#8B5CF6', 1, strftime('%Y-%m-%dT%H:%M:%f','now')),
+('Assinaturas', 'EXPENSE', '#06B6D4', 1, strftime('%Y-%m-%dT%H:%M:%f','now')),
+('Lazer', 'EXPENSE', '#F59E0B', 1, strftime('%Y-%m-%dT%H:%M:%f','now')),
+('Compras', 'EXPENSE', '#14B8A6', 1, strftime('%Y-%m-%dT%H:%M:%f','now')),
+('Impostos', 'EXPENSE', '#64748B', 1, strftime('%Y-%m-%dT%H:%M:%f','now')),
+('Outras despesas', 'EXPENSE', '#9CA3AF', 1, strftime('%Y-%m-%dT%H:%M:%f','now'));
