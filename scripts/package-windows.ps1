@@ -35,13 +35,13 @@ if (Test-Path $AppImageDir) {
 New-Item -ItemType Directory -Force -Path $InputDir | Out-Null
 
 mvn -DskipTests package dependency:copy-dependencies "-DincludeScope=runtime" "-DoutputDirectory=$InputDir"
-Copy-Item -LiteralPath (Join-Path $ProjectRoot "target\hfinance-1.0.0.jar") -Destination $InputDir -Force
+Copy-Item -LiteralPath (Join-Path $ProjectRoot "target\hfinance-1.0.1.jar") -Destination $InputDir -Force
 
 jpackage `
     --type app-image `
     --name HFinance `
     --input $InputDir `
-    --main-jar hfinance-1.0.0.jar `
+    --main-jar hfinance-1.0.1.jar `
     --main-class com.hfinance.HFinanceLauncher `
     --dest $OutputDir `
     --java-options "-Dfile.encoding=UTF-8"

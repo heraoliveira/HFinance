@@ -5,7 +5,7 @@
 
     <groupId>com.hfinance</groupId>
     <artifactId>hfinance</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>HFinance</name>
     <description>Solução desktop local para finanças pessoais</description>
 
