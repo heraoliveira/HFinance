@@ -1,17 +1,19 @@
 # HFinance
 
+[![CI](https://github.com/heraoliveira/HFinance/actions/workflows/ci.yml/badge.svg)](https://github.com/heraoliveira/HFinance/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/heraoliveira/HFinance?label=release)](https://github.com/heraoliveira/HFinance/releases)
+![Java 17](https://img.shields.io/badge/Java-17-007396)
+![JavaFX 17](https://img.shields.io/badge/JavaFX-17-00A3E0)
+![Maven](https://img.shields.io/badge/build-Maven-C71A36)
+![SQLite](https://img.shields.io/badge/database-SQLite-044A64)
+
 **Solução desktop para finanças pessoais**
 
 HFinance surge como uma solução desktop local para organização de finanças pessoais, criada para substituir planilhas e controles manuais por uma experiência clara, visual e em português brasileiro. A aplicação centraliza contas, receitas, despesas, orçamentos, metas financeiras e relatórios exportáveis para apoiar o acompanhamento do dinheiro no dia a dia.
 
-## Screenshots
+## Demonstração
 
-Os placeholders abaixo indicam as telas principais previstas para documentação visual futura:
-
-- `docs/screenshots/visao-geral.png`
-- `docs/screenshots/contas.png`
-- `docs/screenshots/transacoes.png`
-- `docs/screenshots/relatorios.png`
+![Demonstração das abas do HFinance](docs/screenshots/hfinance-tabs.gif)
 
 ## Funcionalidades
 
@@ -149,10 +151,3 @@ O relatório JaCoCo é gerado em `target/site/jacoco`.
 - Categorias são padrão no MVP.
 - Não há multiusuário.
 
-## Próximos passos
-
-- Adicionar screenshots reais.
-- Melhorar gráficos e filtros avançados.
-- Permitir CRUD de categorias.
-- Criar instalador `.exe` com WiX quando necessário.
-- Adicionar testes de interface JavaFX.

@@ -15,7 +15,7 @@ public class HFinanceApplication extends Application {
         String css = getClass().getResource("/css/theme.css").toExternalForm();
         scene.getStylesheets().add(css);
 
-        stage.setTitle("HFinance v1.0.0");
+        stage.setTitle("HFinance v1.0.1");
         stage.setMinWidth(1180);
         stage.setMinHeight(720);
         stage.setScene(scene);
