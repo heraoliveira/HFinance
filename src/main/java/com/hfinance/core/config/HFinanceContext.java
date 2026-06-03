@@ -7,8 +7,12 @@ import com.hfinance.application.service.DashboardService;
 import com.hfinance.application.service.GoalService;
 import com.hfinance.application.service.ReportService;
 import com.hfinance.application.service.TransactionService;
+import com.hfinance.core.backup.BackupService;
 import com.hfinance.core.database.ConnectionFactory;
 import com.hfinance.core.database.DatabaseInitializer;
+import com.hfinance.core.database.DatabaseRuntime;
+import com.hfinance.core.database.DatabaseHealthChecker;
+import com.hfinance.core.diagnostics.DiagnosticsService;
 import com.hfinance.infrastructure.report.CsvTransactionExporter;
 import com.hfinance.infrastructure.report.ExcelReportExporter;
 import com.hfinance.infrastructure.repository.AccountRepository;
@@ -30,11 +34,16 @@ public class HFinanceContext {
     private final GoalService goalService;
     private final DashboardService dashboardService;
     private final ReportService reportService;
+    private final AppPaths appPaths;
+    private final BackupService backupService;
+    private final DatabaseHealthChecker healthChecker;
+    private final DiagnosticsService diagnosticsService;
 
     private HFinanceContext(AccountService accountService, CategoryService categoryService,
                             TransactionService transactionService, BudgetService budgetService,
-                            GoalService goalService, DashboardService dashboardService,
-                            ReportService reportService) {
+                            GoalService goalService, DashboardService dashboardService, ReportService reportService,
+                            AppPaths appPaths, BackupService backupService, DatabaseHealthChecker healthChecker,
+                            DiagnosticsService diagnosticsService) {
         this.accountService = accountService;
         this.categoryService = categoryService;
         this.transactionService = transactionService;
@@ -42,10 +51,15 @@ public class HFinanceContext {
         this.goalService = goalService;
         this.dashboardService = dashboardService;
         this.reportService = reportService;
+        this.appPaths = appPaths;
+        this.backupService = backupService;
+        this.healthChecker = healthChecker;
+        this.diagnosticsService = diagnosticsService;
     }
 
     public static HFinanceContext create() {
-        ConnectionFactory connectionFactory = new DatabaseInitializer(new DatabaseConfig()).initialize();
+        DatabaseRuntime runtime = new DatabaseInitializer(new DatabaseConfig()).initializeRuntime();
+        ConnectionFactory connectionFactory = runtime.connectionFactory();
         AccountRepository accountRepository = new JdbcAccountRepository(connectionFactory);
         CategoryRepository categoryRepository = new JdbcCategoryRepository(connectionFactory);
         TransactionRepository transactionRepository = new JdbcTransactionRepository(connectionFactory);
@@ -61,9 +75,12 @@ public class HFinanceContext {
                 goalService, transactionRepository);
         ReportService reportService = new ReportService(transactionService, budgetService, goalService, accountService,
                 new ExcelReportExporter(), new CsvTransactionExporter());
+        DiagnosticsService diagnosticsService = new DiagnosticsService(runtime.appPaths(), runtime.healthChecker(),
+                runtime.backupService());
 
         return new HFinanceContext(accountService, categoryService, transactionService, budgetService,
-                goalService, dashboardService, reportService);
+                goalService, dashboardService, reportService, runtime.appPaths(), runtime.backupService(),
+                runtime.healthChecker(), diagnosticsService);
     }
 
     public AccountService accountService() {
@@ -92,5 +109,21 @@ public class HFinanceContext {
 
     public ReportService reportService() {
         return reportService;
+    }
+
+    public AppPaths appPaths() {
+        return appPaths;
+    }
+
+    public BackupService backupService() {
+        return backupService;
+    }
+
+    public DatabaseHealthChecker healthChecker() {
+        return healthChecker;
+    }
+
+    public DiagnosticsService diagnosticsService() {
+        return diagnosticsService;
     }
 }

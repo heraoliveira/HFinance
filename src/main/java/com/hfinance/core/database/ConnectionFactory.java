@@ -2,16 +2,28 @@ package com.hfinance.core.database;
 
 import com.hfinance.core.exception.RepositoryException;
 
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 public class ConnectionFactory {
+    private final Path databasePath;
     private final String jdbcUrl;
 
     public ConnectionFactory(String jdbcUrl) {
+        this.databasePath = null;
         this.jdbcUrl = jdbcUrl;
+    }
+
+    public ConnectionFactory(Path databasePath) {
+        this.databasePath = databasePath;
+        this.jdbcUrl = "jdbc:sqlite:" + databasePath.toAbsolutePath();
+    }
+
+    public Path databasePath() {
+        return databasePath;
     }
 
     public String jdbcUrl() {

@@ -31,6 +31,7 @@ public class MainController {
         router.register("Orçamentos", () -> content(new BudgetController(context).getView()));
         router.register("Metas", () -> content(new GoalController(context).getView()));
         router.register("Relatórios", () -> content(new ReportController(context).getView()));
+        router.register("Sobre", () -> content(new AboutController(context).getView()));
 
         sidebarMenu.activate("Visão geral");
         router.navigate("Visão geral");
