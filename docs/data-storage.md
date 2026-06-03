@@ -20,7 +20,7 @@ Esse diretório é criado automaticamente quando a aplicação inicia.
 O arquivo `config.properties` é recriado com padrões seguros quando ausente:
 
 ```properties
-app.version=1.1.0
+app.version=1.1.1
 database.path=%APPDATA%/HFinance/hfinance.db
 backup.retention.maxAutomaticBackups=10
 diagnostics.includeLogTail=true
@@ -30,13 +30,16 @@ O arquivo não contém segredos.
 
 ## Banco Legado
 
-Se existir apenas `data/hfinance.db`, a aplicação:
+A aplicação procura primeiro o banco oficial em `%APPDATA%/HFinance/hfinance.db`.
+
+Se existir apenas `data/hfinance.db`, a aplicação trata esse arquivo como banco legado e:
 
 1. valida o banco legado;
 2. cria backup automático;
 3. copia para `%APPDATA%/HFinance/hfinance.db`;
 4. valida a cópia;
-5. mantém o banco legado no local original.
+5. usa o banco novo;
+6. mantém o banco legado no local original.
 
 Se o banco oficial já existir, ele é usado como fonte de verdade e o legado é apenas preservado.
 

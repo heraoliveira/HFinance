@@ -6,6 +6,8 @@ Logs locais ficam em:
 %APPDATA%/HFinance/logs
 ```
 
+O diretório oficial de dados do HFinance é `%APPDATA%/HFinance`; o banco oficial fica em `%APPDATA%/HFinance/hfinance.db`.
+
 Arquivos principais:
 
 ```text

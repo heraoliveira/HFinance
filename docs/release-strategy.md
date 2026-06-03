@@ -38,7 +38,7 @@ git checkout -b hotfix/1.1.x-descricao-curta
 - não introduzir Spring Boot, PostgreSQL, API obrigatória, login, nuvem ou Android;
 - não alterar migrations antigas já publicadas;
 - criar backup antes de migrations em banco existente;
-- entregar release com ZIP da aplicação, não apenas source code.
+- entregar release com ZIP portátil e instalador Windows, não apenas source code.
 
 ## Checklist de Release
 
@@ -47,8 +47,10 @@ git checkout -b hotfix/1.1.x-descricao-curta
 3. Executar `mvn package`.
 4. Executar `.\scripts\package-windows.ps1`.
 5. Validar `target/package/HFinance/HFinance.exe`.
-6. Compactar `target/package/HFinance` como ZIP de release.
-7. Abrir PR para `main`.
-8. Fazer squash merge após checks.
-9. Criar tag anotada.
-10. Publicar release GitHub com ZIP executável.
+6. Validar `target/release/HFinance-vX.Y.Z-windows.zip`.
+7. Validar `target/release/HFinance-Setup-vX.Y.Z.exe`.
+8. Abrir PR para `main`.
+9. Fazer squash merge após checks.
+10. Atualizar `release/1.x`.
+11. Criar tag anotada.
+12. Publicar release GitHub com ZIP portátil e instalador Windows.

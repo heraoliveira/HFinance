@@ -11,7 +11,7 @@
 
 HFinance surge como uma solução desktop local para organização de finanças pessoais, criada para substituir planilhas e controles manuais por uma experiência clara, visual e em português brasileiro. A aplicação centraliza contas, receitas, despesas, orçamentos, metas financeiras e relatórios exportáveis para apoiar o acompanhamento do dinheiro no dia a dia.
 
-Versão atual: **1.1.0**.
+Versão atual: **1.1.1**.
 
 ## Demonstração
 
@@ -55,7 +55,13 @@ A interface chama services. Services aplicam regras de negócio. Repositories ex
 
 ## Dados Locais
 
-O HFinance é local e offline. No Windows, o diretório oficial de dados do usuário é:
+O HFinance é local e offline. No Windows, o banco oficial do usuário final fica em:
+
+```text
+%APPDATA%/HFinance/hfinance.db
+```
+
+A estrutura completa do diretório de dados é:
 
 ```text
 %APPDATA%/HFinance/
@@ -68,7 +74,16 @@ O HFinance é local e offline. No Windows, o diretório oficial de dados do usu�
 
 Em ambientes de desenvolvimento fora do Windows, a aplicação usa um diretório previsível dentro do perfil do usuário, como `~/.hfinance`.
 
-Versões anteriores usavam `data/hfinance.db`. Na `1.1.0`, se apenas o banco legado existir, a aplicação valida o arquivo, cria backup automático, copia para `%APPDATA%/HFinance/hfinance.db`, valida a cópia e mantém o banco antigo intacto.
+Versões anteriores podiam usar `data/hfinance.db`. Esse caminho agora é tratado apenas como banco legado.
+
+Fluxo de migração segura:
+
+1. A aplicação procura o banco oficial em `%APPDATA%/HFinance/hfinance.db`.
+2. Se encontrar apenas o banco legado em `data/hfinance.db`, cria backup.
+3. Copia o banco legado para o novo local.
+4. Valida a cópia.
+5. Usa o banco novo.
+6. Não apaga o banco legado automaticamente.
 
 ## Backups, Logs e Diagnóstico
 
@@ -127,19 +142,28 @@ O relatório JaCoCo é gerado em `target/site/jacoco`.
 
 ## Empacotar no Windows
 
-O script usa `jpackage` do JDK 17:
+O script usa `jpackage` do JDK 17 e WiX para gerar os artefatos Windows:
+
+```powershell
+java -version
+mvn -version
+jpackage --version
+wix --version
+```
 
 ```powershell
 .\scripts\package-windows.ps1
 ```
 
-Ele valida Java 17, Maven e `jpackage`, executa `mvn clean package`, usa o ícone do projeto e gera:
+Ele valida Java 17, Maven, `jpackage` e WiX, executa `mvn clean package`, usa o ícone do projeto e gera:
 
 ```text
 target/package/HFinance/HFinance.exe
+target/release/HFinance-v1.1.1-windows.zip
+target/release/HFinance-Setup-v1.1.1.exe
 ```
 
-Se o WiX estiver disponível no ambiente, o script também tenta gerar um instalador Windows `.exe`. Se o WiX não estiver instalado, o script informa isso claramente e mantém a imagem da aplicação pronta para compactação.
+O ZIP portátil permite executar a aplicação sem instalador. O instalador Windows `.exe` integra o HFinance ao Windows, cria atalho no Menu Iniciar e usa a versão `1.1.1`.
 
 Ao desinstalar o HFinance, os dados financeiros locais permanecem em `%APPDATA%/HFinance`, salvo remoção manual explícita pelo usuário.
 

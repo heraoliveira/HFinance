@@ -6,6 +6,8 @@ Backups do HFinance ficam em:
 %APPDATA%/HFinance/backups
 ```
 
+O banco oficial fica em `%APPDATA%/HFinance/hfinance.db`. O caminho `data/hfinance.db` é tratado apenas como banco legado de versões anteriores.
+
 ## Tipos
 
 - `AUTOMATIC`: criado pela aplicação antes de migrations pendentes e antes da cópia segura do banco legado.
