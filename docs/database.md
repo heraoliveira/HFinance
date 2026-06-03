@@ -25,7 +25,7 @@ Em ambientes não Windows, o fallback seguro fica no perfil do usuário, como `~
 
 ## Migração do Banco Legado
 
-Versões anteriores podiam usar:
+Versões anteriores podiam usar o caminho legado:
 
 ```text
 data/hfinance.db
@@ -33,13 +33,13 @@ data/hfinance.db
 
 Na inicialização, a aplicação segue este fluxo:
 
-1. Cria as pastas oficiais.
+1. A aplicação procura o banco oficial em `%APPDATA%/HFinance/hfinance.db`.
 2. Detecta banco legado e banco oficial.
 3. Se só existir banco oficial, valida e usa o oficial.
-4. Se só existir banco legado, valida o legado, cria backup automático, copia para o local oficial, valida a cópia e usa o oficial.
+4. Se só existir banco legado em `data/hfinance.db`, valida o legado, cria backup automático, copia para o local oficial, valida a cópia e usa o oficial.
 5. Se ambos existirem, usa o oficial e preserva o legado.
 
-O banco antigo não é apagado automaticamente.
+O banco antigo `data/hfinance.db` não é apagado automaticamente.
 
 ## Validação de Integridade
 
