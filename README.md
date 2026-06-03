@@ -11,6 +11,8 @@
 
 HFinance surge como uma solução desktop local para organização de finanças pessoais, criada para substituir planilhas e controles manuais por uma experiência clara, visual e em português brasileiro. A aplicação centraliza contas, receitas, despesas, orçamentos, metas financeiras e relatórios exportáveis para apoiar o acompanhamento do dinheiro no dia a dia.
 
+Versão atual: **1.1.0**.
+
 ## Demonstração
 
 ![Demonstração das abas do HFinance](docs/screenshots/hfinance-tabs.gif)
@@ -24,7 +26,8 @@ HFinance surge como uma solução desktop local para organização de finanças 
 - Metas financeiras com progresso e status automático.
 - Visão geral com cards, gráfico mensal, últimas transações, contas, alertas e metas.
 - Relatórios com filtros e exportação para Excel `.xlsx` e CSV.
-- Persistência local em SQLite com migrations Flyway.
+- Área **Sobre** com backup manual, abertura das pastas de dados, backups e logs, e exportação de diagnóstico.
+- Persistência local em SQLite com migrations Flyway, validação de integridade e backup automático antes de migrations em bancos existentes.
 
 ## Stack
 
@@ -46,27 +49,37 @@ O projeto usa camadas proporcionais a uma aplicação desktop:
 - `application`: DTOs e services.
 - `infrastructure`: repositories JDBC, migrations e exportadores.
 - `ui`: JavaFX, controllers, componentes, navegação e viewmodels.
-- `core`: configuração, banco, exceções e formatação.
+- `core`: configuração, caminhos, banco, backups, logs, diagnóstico, erros e formatação.
 
-A interface chama services. Services aplicam regras de negócio. Repositories executam SQL com `PreparedStatement`.
+A interface chama services. Services aplicam regras de negócio. Repositories executam SQL com `PreparedStatement`. SQL não fica na UI e regra financeira não fica em controllers JavaFX.
 
-## Banco de dados
+## Dados Locais
 
-O banco SQLite é criado automaticamente em:
-
-```text
-data/hfinance.db
-```
-
-Se a pasta local não puder ser usada, a aplicação tenta usar:
+O HFinance é local e offline. No Windows, o diretório oficial de dados do usuário é:
 
 ```text
-%APPDATA%/HFinance/hfinance.db
+%APPDATA%/HFinance/
+├── hfinance.db
+├── backups/
+├── logs/
+├── exports/
+└── config.properties
 ```
 
-As migrations ficam em `src/main/resources/db/migration` e criam as tabelas `accounts`, `categories`, `transactions`, `budgets` e `goals`.
+Em ambientes de desenvolvimento fora do Windows, a aplicação usa um diretório previsível dentro do perfil do usuário, como `~/.hfinance`.
 
-## Regras principais
+Versões anteriores usavam `data/hfinance.db`. Na `1.1.0`, se apenas o banco legado existir, a aplicação valida o arquivo, cria backup automático, copia para `%APPDATA%/HFinance/hfinance.db`, valida a cópia e mantém o banco antigo intacto.
+
+## Backups, Logs e Diagnóstico
+
+- Backups automáticos são criados antes de migrations pendentes em bancos existentes.
+- Backups manuais ficam disponíveis em **Sobre > Fazer backup agora**.
+- Backups ficam em `%APPDATA%/HFinance/backups`.
+- Logs ficam em `%APPDATA%/HFinance/logs`, incluindo `hfinance.log`, log diário e `hfinance-error.log`.
+- Diagnósticos são exportados por **Sobre > Exportar diagnóstico** para `%APPDATA%/HFinance/exports`.
+- O diagnóstico contém metadados técnicos e últimas linhas de log, sem exportar dados financeiros sensíveis intencionalmente.
+
+## Regras Principais
 
 - Valores monetários usam `BigDecimal`.
 - Datas usam `LocalDate` e `LocalDateTime`.
@@ -77,7 +90,7 @@ As migrations ficam em `src/main/resources/db/migration` e criam as tabelas `acc
 - Meta concluída, atrasada ou em andamento é calculada pelo valor atual e prazo.
 - Relatórios vazios não são exportados sem aviso.
 
-## Executar em desenvolvimento
+## Executar em Desenvolvimento
 
 Pré-requisitos:
 
@@ -96,33 +109,7 @@ Ou diretamente:
 mvn javafx:run
 ```
 
-## Gerar o HFinance.exe
-
-O script usa `jpackage` do JDK 17 para gerar uma imagem de aplicativo Windows:
-
-```powershell
-.\scripts\package-windows.ps1
-```
-
-Quando o ambiente permite o empacotamento, o executável fica em:
-
-```text
-target/package/HFinance/HFinance.exe
-```
-
-Não afirme que o `.exe` foi gerado em outro ambiente sem executar o script com sucesso.
-
-## Como usar
-
-1. Abra o HFinance em desenvolvimento ou pelo `HFinance.exe`.
-2. Cadastre ao menos uma conta em **Contas**.
-3. Cadastre receitas e despesas em **Transações**.
-4. Acompanhe saldo e evolução em **Visão geral**.
-5. Cadastre limites em **Orçamentos**.
-6. Cadastre objetivos em **Metas**.
-7. Use **Relatórios** para filtrar e exportar dados.
-
-## Testes
+## Testar
 
 Execute:
 
@@ -138,16 +125,67 @@ mvn package
 
 O relatório JaCoCo é gerado em `target/site/jacoco`.
 
-## Limitações do MVP
+## Empacotar no Windows
+
+O script usa `jpackage` do JDK 17:
+
+```powershell
+.\scripts\package-windows.ps1
+```
+
+Ele valida Java 17, Maven e `jpackage`, executa `mvn clean package`, usa o ícone do projeto e gera:
+
+```text
+target/package/HFinance/HFinance.exe
+```
+
+Se o WiX estiver disponível no ambiente, o script também tenta gerar um instalador Windows `.exe`. Se o WiX não estiver instalado, o script informa isso claramente e mantém a imagem da aplicação pronta para compactação.
+
+Ao desinstalar o HFinance, os dados financeiros locais permanecem em `%APPDATA%/HFinance`, salvo remoção manual explícita pelo usuário.
+
+## Como Usar
+
+1. Abra o HFinance em desenvolvimento ou pelo `HFinance.exe`.
+2. Cadastre ao menos uma conta em **Contas**.
+3. Cadastre receitas e despesas em **Transações**.
+4. Acompanhe saldo e evolução em **Visão geral**.
+5. Cadastre limites em **Orçamentos**.
+6. Cadastre objetivos em **Metas**.
+7. Use **Relatórios** para filtrar e exportar dados.
+8. Use **Sobre** para criar backup manual, abrir pastas técnicas ou exportar diagnóstico.
+
+## Versionamento e Branches
+
+- `main`: desenvolvimento normal e releases aprovadas.
+- `release/1.x`: correções seguras para usuários atuais.
+- `develop`: opcional para mudanças maiores.
+
+Política de versionamento:
+
+- `1.0.x`: correções de bug.
+- `1.1.x`: melhorias pequenas sem quebrar dados.
+- `1.2.x`: melhorias maiores, ainda desktop local.
+- `2.0.0`: mudança estrutural relevante, como API obrigatória ou arquitetura nova.
+
+Hotfixes da linha 1.x devem partir de `release/1.x`:
+
+```bash
+git checkout release/1.x
+git checkout -b hotfix/1.1.x-descricao-curta
+```
+
+## Limitações da Linha 1.x
 
 - Não conecta com bancos reais.
 - Não importa extrato automaticamente.
 - Não possui login.
 - Não possui sincronização em nuvem.
 - Não possui aplicativo mobile.
+- Não usa Spring Boot, API REST, PostgreSQL, Hibernate ou JPA.
 - Não substitui software contábil profissional.
-- Cartão é apenas método de pagamento no MVP.
+- Cartão é apenas método de pagamento.
 - Dados ficam locais no computador do usuário.
-- Categorias são padrão no MVP.
+- Categorias são padrão.
 - Não há multiusuário.
 
+Mudanças como API obrigatória, nuvem, aplicativo Android, autenticação e nova arquitetura ficam reservadas para `2.0.0` ou superior.

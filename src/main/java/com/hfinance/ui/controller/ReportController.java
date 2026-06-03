@@ -30,6 +30,7 @@ import javafx.util.StringConverter;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.stream.IntStream;
@@ -151,6 +152,7 @@ public class ReportController {
         chooser.setTitle("Exportar relatório Excel");
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel (*.xlsx)", "*.xlsx"));
         chooser.setInitialFileName("relatorio-hfinance.xlsx");
+        configureExportDirectory(chooser);
         File file = chooser.showSaveDialog(table.getScene().getWindow());
         if (file == null) {
             return;
@@ -168,6 +170,7 @@ public class ReportController {
         chooser.setTitle("Exportar transações em CSV");
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV (*.csv)", "*.csv"));
         chooser.setInitialFileName("transacoes-hfinance.csv");
+        configureExportDirectory(chooser);
         File file = chooser.showSaveDialog(table.getScene().getWindow());
         if (file == null) {
             return;
@@ -199,6 +202,15 @@ public class ReportController {
                 null,
                 null
         );
+    }
+
+    private void configureExportDirectory(FileChooser chooser) {
+        try {
+            Files.createDirectories(context.appPaths().exportsDirectory());
+            chooser.setInitialDirectory(context.appPaths().exportsDirectory().toFile());
+        } catch (IOException ex) {
+            // Se a pasta padrão não estiver disponível, o FileChooser usa o comportamento nativo.
+        }
     }
 
     private void clearFilters() {

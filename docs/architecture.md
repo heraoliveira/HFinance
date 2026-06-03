@@ -4,7 +4,7 @@ O HFinance usa arquitetura em camadas para manter regra de negócio fora da inte
 
 ## Camadas
 
-- `core`: configuração, conexão com banco, migrations, exceções e formatadores.
+- `core`: configuração, caminhos, conexão com banco, migrations, backups, logs, diagnóstico, erros, exceções e formatadores.
 - `domain`: entidades, enums e regras puras.
 - `application`: services e DTOs usados pela UI e pelos relatórios.
 - `infrastructure`: repositories JDBC e exportadores Excel/CSV.
@@ -21,6 +21,7 @@ O HFinance usa arquitetura em camadas para manter regra de negócio fora da inte
 ## Decisões
 
 - A interface foi criada programaticamente em JavaFX, com CSS externo, para reduzir dependência de FXML e manter tipagem direta.
-- O banco é SQLite local, inicializado por Flyway.
+- O banco é SQLite local, inicializado por Flyway no diretório oficial de dados do usuário.
+- Banco existente é validado antes de migrations; quando há migration pendente, um backup automático é criado antes da atualização.
 - Valores monetários usam `BigDecimal`.
 - O saldo atual é sempre calculado e não armazenado como fonte de verdade.

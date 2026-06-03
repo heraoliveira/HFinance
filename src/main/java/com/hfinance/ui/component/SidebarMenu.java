@@ -4,6 +4,8 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,11 @@ public class SidebarMenu extends VBox {
         addButton("Orçamentos", onNavigate);
         addButton("Metas", onNavigate);
         addButton("Relatórios", onNavigate);
+
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+        getChildren().add(spacer);
+        addButton("Sobre", onNavigate);
     }
 
     private void addButton(String label, Consumer<String> onNavigate) {
