@@ -28,6 +28,7 @@ public class MainController {
         router.register("Visão geral", () -> content(new DashboardController(context).getView()));
         router.register("Contas", () -> content(new AccountController(context).getView()));
         router.register("Transações", () -> content(new TransactionController(context).getView()));
+        router.register("Categorias", () -> content(new CategoryController(context).getView()));
         router.register("Orçamentos", () -> content(new BudgetController(context).getView()));
         router.register("Metas", () -> content(new GoalController(context).getView()));
         router.register("Relatórios", () -> content(new ReportController(context).getView()));

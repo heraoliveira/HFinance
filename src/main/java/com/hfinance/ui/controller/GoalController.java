@@ -100,11 +100,13 @@ public class GoalController {
 
         Button save = UiUtils.primaryButton("Salvar");
         save.setOnAction(event -> save());
-        Button clear = UiUtils.secondaryButton("Nova meta");
-        clear.setOnAction(event -> clear());
+        Button newGoal = UiUtils.secondaryButton("Nova meta");
+        newGoal.setOnAction(event -> newSimilar());
+        Button reset = UiUtils.secondaryButton("Limpar formulário");
+        reset.setOnAction(event -> clear());
         Button delete = UiUtils.dangerButton("Excluir");
         delete.setOnAction(event -> delete());
-        return new VBox(10, grid, UiUtils.actions(save, clear, delete));
+        return new VBox(10, grid, UiUtils.actions(save, newGoal, reset), UiUtils.actions(delete));
     }
 
     private void save() {
@@ -124,7 +126,7 @@ public class GoalController {
                 Notification.success("Registro atualizado com sucesso.");
             }
             refresh();
-            clear();
+            newSimilar();
         } catch (BusinessException | IllegalArgumentException ex) {
             Notification.error(ex.getMessage() == null ? "Não foi possível concluir a operação." : ex.getMessage());
         }
@@ -171,6 +173,19 @@ public class GoalController {
         currentField.setText("0,00");
         deadlinePicker.setValue(LocalDate.now().plusMonths(6));
         accountCombo.setValue(null);
+    }
+
+    private void newSimilar() {
+        selected = null;
+        table.getSelectionModel().clearSelection();
+        nameField.clear();
+        if (currentField.getText() == null || currentField.getText().isBlank()) {
+            currentField.setText("0,00");
+        }
+        if (deadlinePicker.getValue() == null) {
+            deadlinePicker.setValue(LocalDate.now().plusMonths(6));
+        }
+        nameField.requestFocus();
     }
 
     private void refresh() {

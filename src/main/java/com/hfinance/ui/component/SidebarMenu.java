@@ -28,6 +28,7 @@ public class SidebarMenu extends VBox {
         addButton("Visão geral", onNavigate);
         addButton("Contas", onNavigate);
         addButton("Transações", onNavigate);
+        addButton("Categorias", onNavigate);
         addButton("Orçamentos", onNavigate);
         addButton("Metas", onNavigate);
         addButton("Relatórios", onNavigate);

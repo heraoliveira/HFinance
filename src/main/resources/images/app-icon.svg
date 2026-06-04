@@ -1,22 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Ícone do HFinance">
   <defs>
-    <linearGradient id="background" x1="28" y1="20" x2="228" y2="236" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#F4F7FB"/>
-      <stop offset="1" stop-color="#DFFBFF"/>
-    </linearGradient>
-    <linearGradient id="cyan" x1="72" y1="46" x2="184" y2="210" gradientUnits="userSpaceOnUse">
+    <linearGradient id="background" x1="32" y1="18" x2="226" y2="232" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#00E5FF"/>
-      <stop offset="1" stop-color="#0891B2"/>
+      <stop offset="0.58" stop-color="#07B6D5"/>
+      <stop offset="1" stop-color="#075985"/>
     </linearGradient>
-    <linearGradient id="gold" x1="84" y1="92" x2="194" y2="172" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FFE66D"/>
+    <linearGradient id="hFill" x1="70" y1="52" x2="185" y2="206" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#ECFEFF"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="54" y1="62" x2="204" y2="198" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF7A8"/>
       <stop offset="1" stop-color="#FFD700"/>
     </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#075985" flood-opacity="0.28"/>
+    </filter>
   </defs>
-  <rect x="18" y="18" width="220" height="220" rx="50" fill="url(#background)"/>
-  <rect x="18" y="18" width="220" height="220" rx="50" fill="none" stroke="#00E5FF" stroke-width="8"/>
-  <path d="M70 64h34v50h48V64h34v128h-34v-50h-48v50H70V64Z" fill="url(#cyan)"/>
-  <path d="M88 148c22 20 58 24 86 5" fill="none" stroke="url(#gold)" stroke-width="15" stroke-linecap="round"/>
-  <circle cx="178" cy="94" r="17" fill="#FFD700"/>
-  <circle cx="178" cy="94" r="7" fill="#FFF7CC"/>
+  <rect x="18" y="18" width="220" height="220" rx="48" fill="url(#background)" filter="url(#softShadow)"/>
+  <rect x="28" y="28" width="200" height="200" rx="40" fill="none" stroke="#FFFFFF" stroke-opacity="0.62" stroke-width="4"/>
+  <path d="M51 186c38 28 116 27 153-2" fill="none" stroke="url(#gold)" stroke-width="19" stroke-linecap="round"/>
+  <path d="M61 55h38v55h58V55h38v146h-38v-58H99v58H61V55Z" fill="url(#hFill)"/>
+  <path d="M99 110h58v33H99z" fill="#FFD700"/>
+  <circle cx="192" cy="68" r="18" fill="#FFD700"/>
+  <circle cx="192" cy="68" r="7" fill="#FFF7CC"/>
 </svg>

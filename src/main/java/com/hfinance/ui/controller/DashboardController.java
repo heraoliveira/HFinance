@@ -13,6 +13,7 @@ import javafx.scene.Parent;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.layout.Region;
 import javafx.scene.control.TableView;
@@ -21,6 +22,9 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+
+import java.math.BigDecimal;
+import java.util.Map;
 
 public class DashboardController {
     private final HFinanceContext context;
@@ -56,16 +60,20 @@ public class DashboardController {
         grid.getColumnConstraints().addAll(leftColumn, rightColumn);
 
         VBox chartPanel = UiUtils.compactPanel("Evolução mensal", monthlyEvolution(summary));
+        VBox categoryChartPanel = UiUtils.compactPanel("Despesas por categoria", categoryChart(summary.currentMonthExpenseByCategory(),
+                "Nenhuma despesa encontrada no mês atual."));
         VBox latestPanel = UiUtils.panel("Últimas transações", latestTable(summary));
         VBox accountPanel = UiUtils.panel("Resumo por conta", accountTable(summary));
         VBox budgetPanel = UiUtils.panel("Alertas de orçamento", budgetTable(summary));
         VBox goalPanel = UiUtils.panel("Progresso das metas", goalTable(summary));
-        grid.add(chartPanel, 0, 0, 2, 1);
+        grid.add(chartPanel, 0, 0);
+        grid.add(categoryChartPanel, 1, 0);
         grid.add(latestPanel, 0, 1);
         grid.add(accountPanel, 1, 1);
         grid.add(budgetPanel, 0, 2);
         grid.add(goalPanel, 1, 2);
         GridPane.setHgrow(chartPanel, Priority.ALWAYS);
+        GridPane.setHgrow(categoryChartPanel, Priority.ALWAYS);
         GridPane.setHgrow(latestPanel, Priority.ALWAYS);
         GridPane.setHgrow(accountPanel, Priority.ALWAYS);
         GridPane.setHgrow(budgetPanel, Priority.ALWAYS);
@@ -111,6 +119,28 @@ public class DashboardController {
         summary.monthlyExpense().forEach((month, value) -> expense.getData().add(new XYChart.Data<>(month, value)));
 
         chart.getData().addAll(income, expense);
+        return chart;
+    }
+
+    private Region categoryChart(Map<String, BigDecimal> values, String emptyMessage) {
+        if (values.isEmpty()) {
+            VBox emptyState = new VBox(8,
+                    UiUtils.helperText(emptyMessage),
+                    UiUtils.helperText("Cadastre transações para visualizar a distribuição por categoria.")
+            );
+            emptyState.setMinHeight(230);
+            emptyState.setPrefHeight(250);
+            emptyState.setMaxHeight(270);
+            return emptyState;
+        }
+        PieChart chart = new PieChart();
+        chart.setLegendVisible(true);
+        chart.setLabelsVisible(true);
+        chart.setAnimated(false);
+        chart.setMinHeight(230);
+        chart.setPrefHeight(250);
+        chart.setMaxHeight(270);
+        values.forEach((category, value) -> chart.getData().add(new PieChart.Data(category, value.doubleValue())));
         return chart;
     }
 

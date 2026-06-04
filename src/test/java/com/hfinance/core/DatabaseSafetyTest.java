@@ -88,7 +88,7 @@ class DatabaseSafetyTest {
         new MigrationRunner(connectionFactory, database, backupService, true).migrate();
 
         assertThat(countDatabaseFiles(tempDir.resolve("migration-backups"))).isEqualTo(1);
-        assertThat(healthChecker.check(database).schemaVersion()).isEqualTo("2");
+        assertThat(healthChecker.check(database).schemaVersion()).isEqualTo("3");
     }
 
     @Test

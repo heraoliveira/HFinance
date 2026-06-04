@@ -38,7 +38,8 @@ public class CsvTransactionExporter {
 
     private String escape(String value) {
         String safeValue = value == null ? "" : value;
-        if (safeValue.contains(SEPARATOR) || safeValue.contains("\"") || safeValue.contains("\n")) {
+        if (safeValue.contains(SEPARATOR) || safeValue.contains("\"")
+                || safeValue.contains("\n") || safeValue.contains("\r")) {
             return "\"" + safeValue.replace("\"", "\"\"") + "\"";
         }
         return safeValue;

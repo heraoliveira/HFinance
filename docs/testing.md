@@ -17,9 +17,9 @@ mvn package
 ## Cobertura Atual
 
 - Regras de domínio: valor positivo, status de orçamento, progresso e status de meta, limite da descrição.
-- Services: contas, duplicidade, inativação, receitas, despesas, saldo, transações, orçamentos e metas.
-- Repositories: persistência e filtros de transações.
-- Relatórios: Excel, abas obrigatórias, CSV, cabeçalhos e relatório vazio.
+- Services: contas, duplicidade, inativação, receitas, despesas, saldo, transações, recorrência, categorias, orçamentos e metas.
+- Repositories: persistência, filtros de transações, recorrência e categorias personalizadas.
+- Relatórios: Excel, abas obrigatórias, CSV, cabeçalhos, filtros aplicados e relatório vazio.
 - Segurança de banco: backup validado, banco inválido rejeitado, backup antes de migration pendente e migração segura de banco legado.
 
 ## Regras Protegidas
@@ -28,7 +28,11 @@ mvn package
 - Datas usam `LocalDate` e `LocalDateTime`.
 - Conta ativa tem nome único.
 - Conta inativa não recebe novas transações.
-- Orçamento só aceita categoria de despesa.
+- Categorias ativas têm nome único por tipo.
+- Categoria usada não é excluída fisicamente.
+- Categoria inativa não aparece em novos cadastros.
+- Recorrência respeita quantidade, data final e limite de 120 ocorrências.
+- Orçamento só aceita categoria de despesa ativa.
 - Meta calcula status automaticamente.
 - Relatório vazio não exporta sem aviso.
 - Banco corrompido não é tratado como saudável.

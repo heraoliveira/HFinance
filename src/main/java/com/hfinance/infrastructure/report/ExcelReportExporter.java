@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.IOException;
@@ -19,9 +20,13 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 public class ExcelReportExporter {
+    private static final DateTimeFormatter GENERATED_AT_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
     public void export(Path outputPath, ReportDataDTO data) throws IOException {
         Path parent = outputPath.toAbsolutePath().getParent();
         if (parent != null) {
@@ -48,11 +53,12 @@ public class ExcelReportExporter {
     private void createSummarySheet(Workbook workbook, CellStyle headerStyle, ReportDataDTO data) {
         Sheet sheet = workbook.createSheet("Resumo");
         writeHeader(sheet, headerStyle, "Indicador", "Valor");
-        writeRow(sheet, 1, "Receitas", MoneyFormatter.format(data.totalIncome()));
-        writeRow(sheet, 2, "Despesas", MoneyFormatter.format(data.totalExpense()));
-        writeRow(sheet, 3, "Saldo do período", MoneyFormatter.format(data.totalIncome().subtract(data.totalExpense())));
-        writeRow(sheet, 4, "Saldo total", MoneyFormatter.format(data.totalBalance()));
-        autosize(sheet, 2);
+        writeRow(sheet, 1, "Gerado em", GENERATED_AT_FORMAT.format(LocalDateTime.now()));
+        writeRow(sheet, 2, "Receitas", MoneyFormatter.format(data.totalIncome()));
+        writeRow(sheet, 3, "Despesas", MoneyFormatter.format(data.totalExpense()));
+        writeRow(sheet, 4, "Saldo do período", MoneyFormatter.format(data.totalIncome().subtract(data.totalExpense())));
+        writeRow(sheet, 5, "Saldo total", MoneyFormatter.format(data.totalBalance()));
+        finishSheet(sheet, 2, 5);
     }
 
     private void createTransactionsSheet(Workbook workbook, CellStyle headerStyle, ReportDataDTO data) {
@@ -69,7 +75,7 @@ public class ExcelReportExporter {
                     transaction.description(),
                     MoneyFormatter.format(transaction.amount()));
         }
-        autosize(sheet, 7);
+        finishSheet(sheet, 7, rowIndex - 1);
     }
 
     private void createMapSheet(Workbook workbook, CellStyle headerStyle, String name, String firstHeader,
@@ -80,7 +86,7 @@ public class ExcelReportExporter {
         for (Map.Entry<String, BigDecimal> entry : values.entrySet()) {
             writeRow(sheet, rowIndex++, entry.getKey(), MoneyFormatter.format(entry.getValue()));
         }
-        autosize(sheet, 2);
+        finishSheet(sheet, 2, rowIndex - 1);
     }
 
     private void createCategorySheet(Workbook workbook, CellStyle headerStyle, ReportDataDTO data) {
@@ -93,7 +99,7 @@ public class ExcelReportExporter {
         for (Map.Entry<String, BigDecimal> entry : data.expenseByCategory().entrySet()) {
             writeRow(sheet, rowIndex++, "Despesa", entry.getKey(), MoneyFormatter.format(entry.getValue()));
         }
-        autosize(sheet, 3);
+        finishSheet(sheet, 3, rowIndex - 1);
     }
 
     private void createBudgetSheet(Workbook workbook, CellStyle headerStyle, ReportDataDTO data) {
@@ -111,7 +117,7 @@ public class ExcelReportExporter {
                     budget.usagePercent() + "%",
                     budget.statusLabel());
         }
-        autosize(sheet, 8);
+        finishSheet(sheet, 8, rowIndex - 1);
     }
 
     private void createGoalSheet(Workbook workbook, CellStyle headerStyle, ReportDataDTO data) {
@@ -128,7 +134,7 @@ public class ExcelReportExporter {
                     goal.progressPercent() + "%",
                     goal.statusLabel());
         }
-        autosize(sheet, 7);
+        finishSheet(sheet, 7, rowIndex - 1);
     }
 
     private CellStyle headerStyle(Workbook workbook) {
@@ -155,7 +161,9 @@ public class ExcelReportExporter {
         }
     }
 
-    private void autosize(Sheet sheet, int columns) {
+    private void finishSheet(Sheet sheet, int columns, int lastRow) {
+        sheet.createFreezePane(0, 1);
+        sheet.setAutoFilter(new CellRangeAddress(0, Math.max(0, lastRow), 0, columns - 1));
         for (int i = 0; i < columns; i++) {
             sheet.autoSizeColumn(i);
         }

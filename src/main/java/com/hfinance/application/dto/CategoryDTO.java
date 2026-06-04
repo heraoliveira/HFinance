@@ -9,10 +9,16 @@ public record CategoryDTO(
         CategoryType type,
         String typeLabel,
         String color,
-        boolean defaultCategory
+        boolean defaultCategory,
+        boolean active,
+        String originLabel,
+        String statusLabel
 ) {
     public static CategoryDTO from(Category category) {
         return new CategoryDTO(category.getId(), category.getName(), category.getType(),
-                category.getType().displayName(), category.getColor(), category.isDefaultCategory());
+                category.getType().displayName(), category.getColor(), category.isDefaultCategory(),
+                category.isActive(),
+                category.isDefaultCategory() ? "Padrão" : "Personalizada",
+                category.isActive() ? "Ativa" : "Inativa");
     }
 }

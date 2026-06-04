@@ -11,6 +11,8 @@ public record DashboardSummaryDTO(
         BigDecimal currentMonthBalance,
         Map<String, BigDecimal> monthlyIncome,
         Map<String, BigDecimal> monthlyExpense,
+        Map<String, BigDecimal> currentMonthExpenseByCategory,
+        Map<String, BigDecimal> currentMonthIncomeByCategory,
         List<TransactionDTO> latestTransactions,
         List<AccountDTO> accountBalances,
         List<BudgetDTO> exceededBudgets,

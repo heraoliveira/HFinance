@@ -21,6 +21,11 @@ final class JdbcSupport {
         return value == null ? null : LocalDateTime.parse(value.replace(' ', 'T'));
     }
 
+    static Integer getInteger(ResultSet resultSet, String column) throws SQLException {
+        int value = resultSet.getInt(column);
+        return resultSet.wasNull() ? null : value;
+    }
+
     static void bind(PreparedStatement statement, int index, Object value) throws SQLException {
         if (value instanceof LocalDate date) {
             statement.setString(index, date.toString());

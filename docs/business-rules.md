@@ -17,12 +17,22 @@
 - Receita aumenta saldo.
 - Despesa diminui saldo.
 - Transações futuras são permitidas.
+- Transação recorrente é opcional e gera ocorrências individuais no momento do cadastro.
+- Recorrência aceita semanal, mensal e anual.
+- Recorrência deve ter quantidade ou data final, sem recorrência infinita.
+- O limite seguro é de 120 ocorrências.
+- Editar ou excluir uma transação recorrente altera apenas a ocorrência selecionada na versão 1.2.0.
 
 ## Categorias
 
 - Categorias padrão são inseridas na primeira execução.
+- Categorias personalizadas podem ser criadas, editadas, inativadas e excluídas quando nunca foram usadas.
+- Nome ativo deve ser único por tipo, ignorando maiúsculas, minúsculas e espaços extras.
+- Categoria padrão não é excluída fisicamente.
+- Categoria usada em transações ou orçamentos deve ser inativada em vez de excluída.
+- Categoria inativa não aparece como opção padrão em novos cadastros.
 - Transação deve usar categoria do mesmo tipo da transação.
-- Orçamento só aceita categoria de despesa.
+- Orçamento só aceita categoria de despesa ativa.
 
 ## Orçamentos
 

@@ -2,6 +2,44 @@
 
 Todas as mudanças relevantes do HFinance são documentadas neste arquivo.
 
+## [1.2.0] - 2026-06-04
+
+### Adicionado
+
+- CRUD de categorias personalizadas com filtro por tipo, cor, origem e status.
+- Suporte a categorias inativas, mantendo histórico visível em transações e relatórios.
+- Criação de transações recorrentes semanalmente, mensalmente ou anualmente, com limite seguro de 120 ocorrências.
+- Filtro de categoria e atalhos de período na tela de transações.
+- Filtros preservados na sessão para transações e relatórios.
+- Cards e gráficos adicionais em relatórios, incluindo receitas vs despesas por mês, despesas por categoria e métodos de pagamento.
+- Gráfico de despesas por categoria na visão geral.
+- Novo ícone em ciano e dourado com H maior para JavaFX e empacotamento Windows.
+- Migration `V3__quality_usability_1_2.sql` para categorias ativas, recorrência e índices de filtros.
+
+### Alterado
+
+- Versão atualizada para `1.2.0` no Maven, aplicação e script de empacotamento.
+- Formulários de transações, contas, orçamentos e metas agora preservam dados úteis para cadastros repetitivos.
+- Relatórios exportados usam nomes com timestamp e mantêm o diretório padrão `%APPDATA%/HFinance/exports`.
+- Exportação Excel inclui metadado de geração, cabeçalho congelado e autofiltro nas abas.
+- Orçamentos passam a aceitar apenas categorias de despesa ativas em novos cadastros.
+- Tabelas e telas seguem layout rolável e com altura controlada para reduzir espaços vazios e cortes.
+
+### Corrigido
+
+- DatePicker estilizado com mês e ano legíveis, contraste adequado e alinhamento visual com a paleta ciano/dourado.
+- CSV passa a escapar quebras de linha `\r` além de aspas, ponto e vírgula e `\n`.
+- Mensagens e textos visíveis revisados em português brasileiro correto nos fluxos alterados.
+
+### Não incluído
+
+- Spring Boot.
+- PostgreSQL.
+- Login.
+- Nuvem.
+- Android.
+- Hibernate ou JPA.
+
 ## [1.1.1] - 2026-06-03
 
 ### Corrigido

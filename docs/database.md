@@ -57,6 +57,7 @@ Se a validação falhar, migrations não são executadas e a inicialização exi
 
 - `V1__create_initial_schema.sql`: cria tabelas e índices.
 - `V2__insert_default_categories.sql`: insere categorias padrão.
+- `V3__quality_usability_1_2.sql`: adiciona categorias ativas, metadado de atualização, recorrência de transações e índices de filtros.
 
 Regras:
 
@@ -68,8 +69,8 @@ Regras:
 ## Tabelas
 
 - `accounts`: contas financeiras.
-- `categories`: categorias padrão de receita e despesa.
-- `transactions`: receitas e despesas.
+- `categories`: categorias padrão e personalizadas de receita e despesa, com controle de status ativo/inativo.
+- `transactions`: receitas e despesas, incluindo metadados opcionais de recorrência.
 - `budgets`: limites mensais por categoria de despesa.
 - `goals`: metas financeiras.
 

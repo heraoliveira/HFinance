@@ -73,6 +73,9 @@ public class BudgetService {
         }
         Category category = categoryRepository.findById(budget.getCategoryId())
                 .orElseThrow(() -> new ValidationException("Selecione uma categoria."));
+        if (!category.isActive()) {
+            throw new ValidationException("Selecione uma categoria de despesa ativa.");
+        }
         boolean duplicated = budgetRepository.existsByCategoryMonthYear(
                 budget.getCategoryId(), budget.getMonth(), budget.getYear(), excludedId);
         BudgetRules.validate(budget, duplicated, category.getType() == CategoryType.EXPENSE);

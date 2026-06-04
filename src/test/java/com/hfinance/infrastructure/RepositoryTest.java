@@ -3,6 +3,7 @@ package com.hfinance.infrastructure;
 import com.hfinance.application.dto.TransactionFilterDTO;
 import com.hfinance.domain.enums.AccountType;
 import com.hfinance.domain.enums.PaymentMethod;
+import com.hfinance.domain.enums.RecurrenceType;
 import com.hfinance.domain.enums.TransactionType;
 import com.hfinance.domain.model.Account;
 import com.hfinance.domain.model.Category;
@@ -65,5 +66,30 @@ class RepositoryTest {
         assertThat(fixture.transactionRepository().findByFilter(new TransactionFilterDTO(
                 null, null, null, null, null, null, null, null, null,
                 new BigDecimal("100.00"), new BigDecimal("500.00")))).hasSize(1);
+        assertThat(fixture.transactionRepository().findByFilter(new TransactionFilterDTO(
+                null, null, null, null, account.getId(), expense.getId(), null, null, null, null, null))).hasSize(2);
+    }
+
+    @Test
+    void persistsRecurringTransactionMetadata() {
+        TestSupport.Fixture fixture = TestSupport.fixture(tempDir);
+        Account account = fixture.accountRepository().save(Account.newAccount("Principal", "Banco",
+                AccountType.CHECKING_ACCOUNT, new BigDecimal("0.00")));
+        Category category = fixture.expenseCategory();
+        Transaction transaction = Transaction.newTransaction(account.getId(), category.getId(),
+                LocalDate.of(2026, 6, 4), TransactionType.EXPENSE, PaymentMethod.PIX,
+                "Assinatura", new BigDecimal("39.90"));
+        transaction.setRecurrenceGroupId("grupo-1");
+        transaction.setRecurrenceType(RecurrenceType.MONTHLY);
+        transaction.setRecurrenceIndex(2);
+        transaction.setRecurrenceTotal(12);
+
+        Transaction saved = fixture.transactionRepository().save(transaction);
+        Transaction found = fixture.transactionRepository().findById(saved.getId()).orElseThrow();
+
+        assertThat(found.getRecurrenceGroupId()).isEqualTo("grupo-1");
+        assertThat(found.getRecurrenceType()).isEqualTo(RecurrenceType.MONTHLY);
+        assertThat(found.getRecurrenceIndex()).isEqualTo(2);
+        assertThat(found.getRecurrenceTotal()).isEqualTo(12);
     }
 }
