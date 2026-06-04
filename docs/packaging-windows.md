@@ -39,7 +39,7 @@ O script executa:
 8. Geração do ZIP portátil.
 9. Execução do `jpackage` com `--type exe` para gerar o instalador Windows.
 
-Se o WiX não for encontrado, o script falha com mensagem clara. A release `1.1.1` não é considerada pronta sem o instalador `.exe`.
+Se o WiX não for encontrado, o script falha com mensagem clara. O instalador `.exe` depende do WiX; o ZIP portátil continua sendo gerado pelo fluxo de empacotamento.
 
 ## Saídas
 
@@ -52,16 +52,16 @@ target/package/HFinance/HFinance.exe
 ZIP portátil:
 
 ```text
-target/release/HFinance-v1.1.1-windows.zip
+target/release/HFinance-v1.2.0-windows.zip
 ```
 
 Instalador Windows:
 
 ```text
-target/release/HFinance-Setup-v1.1.1.exe
+target/release/HFinance-Setup-v1.2.0.exe
 ```
 
-O ZIP contém `HFinance.exe`, `runtime/`, `app/` e recursos necessários para execução. O instalador integra o HFinance ao Windows, cria atalho no Menu Iniciar, usa o ícone correto e exibe a versão `1.1.1`.
+O ZIP contém `HFinance.exe`, `runtime/`, `app/` e recursos necessários para execução. O instalador integra o HFinance ao Windows, cria atalho no Menu Iniciar, usa o ícone correto em `src/main/resources/images/app-icon.ico` e exibe a versão `1.2.0`.
 
 ## Dados do Usuário
 

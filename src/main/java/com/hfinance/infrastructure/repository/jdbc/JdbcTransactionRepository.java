@@ -4,6 +4,7 @@ import com.hfinance.application.dto.TransactionFilterDTO;
 import com.hfinance.core.database.ConnectionFactory;
 import com.hfinance.core.exception.RepositoryException;
 import com.hfinance.domain.enums.PaymentMethod;
+import com.hfinance.domain.enums.RecurrenceType;
 import com.hfinance.domain.enums.TransactionType;
 import com.hfinance.domain.model.Transaction;
 import com.hfinance.infrastructure.repository.TransactionRepository;
@@ -30,8 +31,9 @@ public class JdbcTransactionRepository implements TransactionRepository {
     public Transaction save(Transaction transaction) {
         String sql = """
                 INSERT INTO transactions
-                (account_id, category_id, transaction_date, transaction_type, payment_method, description, amount, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (account_id, category_id, transaction_date, transaction_type, payment_method, description, amount,
+                 recurrence_group_id, recurrence_type, recurrence_index, recurrence_total, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
         try (Connection connection = connectionFactory.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -53,7 +55,8 @@ public class JdbcTransactionRepository implements TransactionRepository {
         String sql = """
                 UPDATE transactions
                    SET account_id = ?, category_id = ?, transaction_date = ?, transaction_type = ?,
-                       payment_method = ?, description = ?, amount = ?, updated_at = ?
+                       payment_method = ?, description = ?, amount = ?, recurrence_group_id = ?,
+                       recurrence_type = ?, recurrence_index = ?, recurrence_total = ?, updated_at = ?
                  WHERE id = ?
                 """;
         try (Connection connection = connectionFactory.getConnection();
@@ -65,8 +68,14 @@ public class JdbcTransactionRepository implements TransactionRepository {
             statement.setString(5, transaction.getPaymentMethod().name());
             statement.setString(6, transaction.getDescription());
             statement.setBigDecimal(7, transaction.getAmount());
-            statement.setString(8, transaction.getUpdatedAt().toString());
-            statement.setLong(9, transaction.getId());
+            statement.setString(8, transaction.getRecurrenceGroupId());
+            statement.setString(9, transaction.getRecurrenceType() == RecurrenceType.NONE
+                    ? null
+                    : transaction.getRecurrenceType().name());
+            JdbcSupport.bind(statement, 10, transaction.getRecurrenceIndex());
+            JdbcSupport.bind(statement, 11, transaction.getRecurrenceTotal());
+            statement.setString(12, transaction.getUpdatedAt().toString());
+            statement.setLong(13, transaction.getId());
             statement.executeUpdate();
         } catch (SQLException ex) {
             throw new RepositoryException("Não foi possível atualizar a transação.", ex);
@@ -251,8 +260,14 @@ public class JdbcTransactionRepository implements TransactionRepository {
         statement.setString(5, transaction.getPaymentMethod().name());
         statement.setString(6, transaction.getDescription());
         statement.setBigDecimal(7, transaction.getAmount());
-        statement.setString(8, transaction.getCreatedAt().toString());
-        statement.setString(9, transaction.getUpdatedAt().toString());
+        statement.setString(8, transaction.getRecurrenceGroupId());
+        statement.setString(9, transaction.getRecurrenceType() == RecurrenceType.NONE
+                ? null
+                : transaction.getRecurrenceType().name());
+        JdbcSupport.bind(statement, 10, transaction.getRecurrenceIndex());
+        JdbcSupport.bind(statement, 11, transaction.getRecurrenceTotal());
+        statement.setString(12, transaction.getCreatedAt().toString());
+        statement.setString(13, transaction.getUpdatedAt().toString());
     }
 
     private List<Transaction> readList(ResultSet resultSet) throws SQLException {
@@ -273,8 +288,16 @@ public class JdbcTransactionRepository implements TransactionRepository {
                 PaymentMethod.valueOf(resultSet.getString("payment_method")),
                 resultSet.getString("description"),
                 JdbcSupport.getBigDecimal(resultSet, "amount"),
+                resultSet.getString("recurrence_group_id"),
+                recurrenceType(resultSet.getString("recurrence_type")),
+                JdbcSupport.getInteger(resultSet, "recurrence_index"),
+                JdbcSupport.getInteger(resultSet, "recurrence_total"),
                 JdbcSupport.getLocalDateTime(resultSet, "created_at"),
                 JdbcSupport.getLocalDateTime(resultSet, "updated_at")
         );
+    }
+
+    private RecurrenceType recurrenceType(String value) {
+        return value == null || value.isBlank() ? RecurrenceType.NONE : RecurrenceType.valueOf(value);
     }
 }

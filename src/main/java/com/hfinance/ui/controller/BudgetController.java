@@ -102,11 +102,13 @@ public class BudgetController {
 
         Button save = UiUtils.primaryButton("Salvar");
         save.setOnAction(event -> save());
-        Button clear = UiUtils.secondaryButton("Novo orçamento");
-        clear.setOnAction(event -> clear());
+        Button newBudget = UiUtils.secondaryButton("Novo orçamento");
+        newBudget.setOnAction(event -> newSimilar());
+        Button reset = UiUtils.secondaryButton("Limpar formulário");
+        reset.setOnAction(event -> clear());
         Button delete = UiUtils.dangerButton("Excluir");
         delete.setOnAction(event -> delete());
-        return new VBox(10, grid, UiUtils.actions(save, clear, delete));
+        return new VBox(10, grid, UiUtils.actions(save, newBudget, reset), UiUtils.actions(delete));
     }
 
     private void save() {
@@ -124,7 +126,7 @@ public class BudgetController {
                 Notification.success("Registro atualizado com sucesso.");
             }
             refresh();
-            clear();
+            newSimilar();
         } catch (BusinessException | NumberFormatException ex) {
             Notification.error(ex.getMessage() == null ? "Não foi possível concluir a operação." : ex.getMessage());
         }
@@ -169,8 +171,32 @@ public class BudgetController {
         limitField.clear();
     }
 
+    private void newSimilar() {
+        selected = null;
+        table.getSelectionModel().clearSelection();
+        nameField.clear();
+        LocalDate base = selectedPeriod();
+        LocalDate nextMonth = base.plusMonths(1);
+        monthCombo.setValue(nextMonth.getMonthValue());
+        yearField.setText(String.valueOf(nextMonth.getYear()));
+        nameField.requestFocus();
+    }
+
+    private LocalDate selectedPeriod() {
+        int month = monthCombo.getValue() == null ? LocalDate.now().getMonthValue() : monthCombo.getValue();
+        int year;
+        try {
+            year = yearField.getText() == null || yearField.getText().isBlank()
+                    ? LocalDate.now().getYear()
+                    : Integer.parseInt(yearField.getText().trim());
+        } catch (NumberFormatException ex) {
+            year = LocalDate.now().getYear();
+        }
+        return LocalDate.of(year, month, 1);
+    }
+
     private void refresh() {
-        categoryCombo.setItems(FXCollections.observableArrayList(context.categoryService().listByType(CategoryType.EXPENSE)));
+        categoryCombo.setItems(FXCollections.observableArrayList(context.categoryService().listActiveByType(CategoryType.EXPENSE)));
         List<BudgetDTO> budgets = context.budgetService().listBudgets();
         table.setItems(FXCollections.observableArrayList(budgets));
         UiUtils.adjustTableHeight(table, budgets.size(), 300, 460);

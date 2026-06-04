@@ -38,6 +38,7 @@ public class DashboardService {
         LocalDate monthStart = today.withDayOfMonth(1);
         LocalDate monthEnd = monthStart.withDayOfMonth(monthStart.lengthOfMonth());
         List<Transaction> monthTransactions = transactionRepository.findBetween(monthStart, monthEnd);
+        List<TransactionDTO> monthTransactionDTOs = transactionService.mapTransactions(monthTransactions);
 
         BigDecimal monthIncome = sumByType(monthTransactions, TransactionType.INCOME);
         BigDecimal monthExpense = sumByType(monthTransactions, TransactionType.EXPENSE);
@@ -59,6 +60,8 @@ public class DashboardService {
                 monthIncome.subtract(monthExpense),
                 monthlyIncome,
                 monthlyExpense,
+                byCategory(monthTransactionDTOs, TransactionType.EXPENSE),
+                byCategory(monthTransactionDTOs, TransactionType.INCOME),
                 latestTransactions,
                 accountBalances,
                 exceeded,
@@ -82,5 +85,13 @@ public class DashboardService {
                 .filter(transaction -> transaction.getTransactionType() == type)
                 .map(Transaction::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private Map<String, BigDecimal> byCategory(List<TransactionDTO> transactions, TransactionType type) {
+        Map<String, BigDecimal> result = new LinkedHashMap<>();
+        transactions.stream()
+                .filter(transaction -> transaction.transactionType() == type)
+                .forEach(transaction -> result.merge(transaction.categoryName(), transaction.amount(), BigDecimal::add));
+        return result;
     }
 }

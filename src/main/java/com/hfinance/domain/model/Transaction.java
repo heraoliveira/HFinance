@@ -1,6 +1,7 @@
 package com.hfinance.domain.model;
 
 import com.hfinance.domain.enums.PaymentMethod;
+import com.hfinance.domain.enums.RecurrenceType;
 import com.hfinance.domain.enums.TransactionType;
 
 import java.math.BigDecimal;
@@ -16,12 +17,25 @@ public class Transaction {
     private PaymentMethod paymentMethod;
     private String description;
     private BigDecimal amount;
+    private String recurrenceGroupId;
+    private RecurrenceType recurrenceType;
+    private Integer recurrenceIndex;
+    private Integer recurrenceTotal;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public Transaction(Long id, Long accountId, Long categoryId, LocalDate transactionDate,
                        TransactionType transactionType, PaymentMethod paymentMethod, String description,
                        BigDecimal amount, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this(id, accountId, categoryId, transactionDate, transactionType, paymentMethod, description, amount,
+                null, RecurrenceType.NONE, null, null, createdAt, updatedAt);
+    }
+
+    public Transaction(Long id, Long accountId, Long categoryId, LocalDate transactionDate,
+                       TransactionType transactionType, PaymentMethod paymentMethod, String description,
+                       BigDecimal amount, String recurrenceGroupId, RecurrenceType recurrenceType,
+                       Integer recurrenceIndex, Integer recurrenceTotal,
+                       LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.accountId = accountId;
         this.categoryId = categoryId;
@@ -30,6 +44,10 @@ public class Transaction {
         this.paymentMethod = paymentMethod;
         this.description = description;
         this.amount = amount;
+        this.recurrenceGroupId = recurrenceGroupId;
+        this.recurrenceType = recurrenceType == null ? RecurrenceType.NONE : recurrenceType;
+        this.recurrenceIndex = recurrenceIndex;
+        this.recurrenceTotal = recurrenceTotal;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -104,6 +122,38 @@ public class Transaction {
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    public String getRecurrenceGroupId() {
+        return recurrenceGroupId;
+    }
+
+    public void setRecurrenceGroupId(String recurrenceGroupId) {
+        this.recurrenceGroupId = recurrenceGroupId;
+    }
+
+    public RecurrenceType getRecurrenceType() {
+        return recurrenceType == null ? RecurrenceType.NONE : recurrenceType;
+    }
+
+    public void setRecurrenceType(RecurrenceType recurrenceType) {
+        this.recurrenceType = recurrenceType == null ? RecurrenceType.NONE : recurrenceType;
+    }
+
+    public Integer getRecurrenceIndex() {
+        return recurrenceIndex;
+    }
+
+    public void setRecurrenceIndex(Integer recurrenceIndex) {
+        this.recurrenceIndex = recurrenceIndex;
+    }
+
+    public Integer getRecurrenceTotal() {
+        return recurrenceTotal;
+    }
+
+    public void setRecurrenceTotal(Integer recurrenceTotal) {
+        this.recurrenceTotal = recurrenceTotal;
     }
 
     public LocalDateTime getCreatedAt() {

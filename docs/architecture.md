@@ -25,3 +25,5 @@ O HFinance usa arquitetura em camadas para manter regra de negócio fora da inte
 - Banco existente é validado antes de migrations; quando há migration pendente, um backup automático é criado antes da atualização.
 - Valores monetários usam `BigDecimal`.
 - O saldo atual é sempre calculado e não armazenado como fonte de verdade.
+- Categorias personalizadas e recorrência seguem a mesma arquitetura: controllers chamam services, services validam regras, repositories JDBC persistem dados.
+- Gráficos da versão 1.2.0 usam JavaFX Charts para evitar dependências externas pesadas.

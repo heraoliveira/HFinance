@@ -2,12 +2,16 @@ package com.hfinance.application;
 
 import com.hfinance.application.dto.AccountDTO;
 import com.hfinance.application.dto.BudgetDTO;
+import com.hfinance.application.dto.CategoryDTO;
 import com.hfinance.application.dto.GoalDTO;
+import com.hfinance.application.dto.RecurrenceRequest;
 import com.hfinance.application.dto.TransactionDTO;
 import com.hfinance.core.exception.BusinessException;
 import com.hfinance.domain.enums.AccountType;
+import com.hfinance.domain.enums.CategoryType;
 import com.hfinance.domain.enums.GoalStatus;
 import com.hfinance.domain.enums.PaymentMethod;
+import com.hfinance.domain.enums.RecurrenceType;
 import com.hfinance.domain.enums.TransactionType;
 import com.hfinance.domain.model.Category;
 import com.hfinance.testsupport.TestSupport;
@@ -17,6 +21,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -121,6 +126,124 @@ class ServiceTest {
                 new BigDecimal("1000.00"), LocalDate.now().plusMonths(1));
         assertThat(updated.progressPercent()).isEqualByComparingTo("100.00");
         assertThat(updated.status()).isEqualTo(GoalStatus.COMPLETED);
+    }
+
+    @Test
+    void managesCustomCategoriesAndBlocksActiveDuplicates() {
+        TestSupport.Fixture fixture = TestSupport.fixture(tempDir);
+
+        CategoryDTO income = fixture.categoryService().create("Renda extra", CategoryType.INCOME, "#00E5FF");
+        CategoryDTO expense = fixture.categoryService().create("Renda extra", CategoryType.EXPENSE, "#FFD700");
+
+        assertThat(income.defaultCategory()).isFalse();
+        assertThat(expense.type()).isEqualTo(CategoryType.EXPENSE);
+        assertThat(fixture.categoryService().listActiveByType(CategoryType.INCOME))
+                .extracting(CategoryDTO::name)
+                .contains("Renda extra");
+        assertThatThrownBy(() -> fixture.categoryService().create(" renda   extra ", CategoryType.INCOME, "#FFFFFF"))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("Já existe uma categoria ativa com esse nome para este tipo.");
+    }
+
+    @Test
+    void inactivatesUsedCategoryAndKeepsHistoricalTransactionsVisible() {
+        TestSupport.Fixture fixture = TestSupport.fixture(tempDir);
+        AccountDTO account = createAccount(fixture);
+        CategoryDTO category = fixture.categoryService().create("Assinatura premium", CategoryType.EXPENSE, "#FFD700");
+
+        fixture.transactionService().create(account.id(), category.id(), LocalDate.now(), TransactionType.EXPENSE,
+                PaymentMethod.CREDIT_CARD, "Streaming", new BigDecimal("39.90"));
+        fixture.categoryService().deactivate(category.id());
+
+        assertThat(fixture.categoryService().listActiveByType(CategoryType.EXPENSE))
+                .extracting(CategoryDTO::id)
+                .doesNotContain(category.id());
+        assertThat(fixture.transactionService().listTransactions())
+                .extracting(TransactionDTO::categoryName)
+                .contains("Assinatura premium");
+        assertThatThrownBy(() -> fixture.categoryService().delete(category.id()))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("Não é possível excluir uma categoria que já possui transações.");
+    }
+
+    @Test
+    void budgetRequiresActiveExpenseCategory() {
+        TestSupport.Fixture fixture = TestSupport.fixture(tempDir);
+        CategoryDTO category = fixture.categoryService().create("Viagens", CategoryType.EXPENSE, "#00E5FF");
+        fixture.categoryService().deactivate(category.id());
+
+        assertThatThrownBy(() -> fixture.budgetService().create(category.id(), "Viagens",
+                LocalDate.now().getMonthValue(), LocalDate.now().getYear(), new BigDecimal("500.00")))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("Selecione uma categoria de despesa ativa.");
+    }
+
+    @Test
+    void createsRecurringTransactionsWithExpectedDatesAndMetadata() {
+        TestSupport.Fixture fixture = TestSupport.fixture(tempDir);
+        AccountDTO account = createAccount(fixture);
+        Category expense = fixture.expenseCategory();
+
+        List<TransactionDTO> transactions = fixture.transactionService().createRecurring(account.id(), expense.getId(),
+                LocalDate.of(2026, 1, 31), TransactionType.EXPENSE, PaymentMethod.PIX,
+                "Aluguel", new BigDecimal("1200.00"),
+                new RecurrenceRequest(RecurrenceType.MONTHLY, 3, null));
+
+        assertThat(transactions).hasSize(3);
+        assertThat(transactions).extracting(TransactionDTO::transactionDate)
+                .containsExactly(LocalDate.of(2026, 1, 31), LocalDate.of(2026, 2, 28), LocalDate.of(2026, 3, 31));
+        assertThat(transactions).allSatisfy(transaction -> {
+            assertThat(transaction.recurrenceGroupId()).isNotBlank();
+            assertThat(transaction.recurrenceType()).isEqualTo(RecurrenceType.MONTHLY);
+            assertThat(transaction.recurrenceTotal()).isEqualTo(3);
+            assertThat(transaction.accountId()).isEqualTo(account.id());
+            assertThat(transaction.categoryId()).isEqualTo(expense.getId());
+            assertThat(transaction.amount()).isEqualByComparingTo("1200.00");
+        });
+    }
+
+    @Test
+    void createsWeeklyAndYearlyRecurringTransactions() {
+        TestSupport.Fixture fixture = TestSupport.fixture(tempDir);
+        AccountDTO account = createAccount(fixture);
+        Category income = fixture.incomeCategory();
+
+        List<TransactionDTO> weekly = fixture.transactionService().createRecurring(account.id(), income.getId(),
+                LocalDate.of(2026, 6, 4), TransactionType.INCOME, PaymentMethod.PIX,
+                "Freelance", new BigDecimal("300.00"),
+                new RecurrenceRequest(RecurrenceType.WEEKLY, 2, null));
+        List<TransactionDTO> yearly = fixture.transactionService().createRecurring(account.id(), income.getId(),
+                LocalDate.of(2024, 2, 29), TransactionType.INCOME, PaymentMethod.PIX,
+                "Bônus", new BigDecimal("1000.00"),
+                new RecurrenceRequest(RecurrenceType.YEARLY, 2, null));
+
+        assertThat(weekly).extracting(TransactionDTO::transactionDate)
+                .containsExactly(LocalDate.of(2026, 6, 4), LocalDate.of(2026, 6, 11));
+        assertThat(yearly).extracting(TransactionDTO::transactionDate)
+                .containsExactly(LocalDate.of(2024, 2, 29), LocalDate.of(2025, 2, 28));
+    }
+
+    @Test
+    void validatesRecurringTransactions() {
+        TestSupport.Fixture fixture = TestSupport.fixture(tempDir);
+        AccountDTO account = createAccount(fixture);
+        Category expense = fixture.expenseCategory();
+
+        assertThatThrownBy(() -> fixture.transactionService().createRecurring(account.id(), expense.getId(),
+                LocalDate.now(), TransactionType.EXPENSE, PaymentMethod.PIX, "Inválida", new BigDecimal("10.00"),
+                new RecurrenceRequest(RecurrenceType.MONTHLY, 0, null)))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("A quantidade de repetições deve ser maior que zero.");
+        assertThatThrownBy(() -> fixture.transactionService().createRecurring(account.id(), expense.getId(),
+                LocalDate.of(2026, 6, 4), TransactionType.EXPENSE, PaymentMethod.PIX, "Inválida",
+                new BigDecimal("10.00"), new RecurrenceRequest(RecurrenceType.MONTHLY, null, LocalDate.of(2026, 6, 3))))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("A data final da recorrência deve ser igual ou posterior à data inicial.");
+        assertThatThrownBy(() -> fixture.transactionService().createRecurring(account.id(), expense.getId(),
+                LocalDate.now(), TransactionType.EXPENSE, PaymentMethod.PIX, "Inválida", new BigDecimal("10.00"),
+                new RecurrenceRequest(RecurrenceType.MONTHLY, 121, null)))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("A recorrência permite no máximo 120 ocorrências.");
     }
 
     private AccountDTO createAccount(TestSupport.Fixture fixture) {

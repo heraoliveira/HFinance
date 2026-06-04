@@ -1,6 +1,7 @@
 package com.hfinance.application.dto;
 
 import com.hfinance.domain.enums.PaymentMethod;
+import com.hfinance.domain.enums.RecurrenceType;
 import com.hfinance.domain.enums.TransactionType;
 import com.hfinance.domain.model.Transaction;
 
@@ -19,7 +20,12 @@ public record TransactionDTO(
         PaymentMethod paymentMethod,
         String paymentMethodLabel,
         String description,
-        BigDecimal amount
+        BigDecimal amount,
+        String recurrenceGroupId,
+        RecurrenceType recurrenceType,
+        String recurrenceLabel,
+        Integer recurrenceIndex,
+        Integer recurrenceTotal
 ) {
     public static TransactionDTO from(Transaction transaction, String accountName, String categoryName) {
         return new TransactionDTO(
@@ -34,7 +40,23 @@ public record TransactionDTO(
                 transaction.getPaymentMethod(),
                 transaction.getPaymentMethod().displayName(),
                 transaction.getDescription(),
-                transaction.getAmount()
+                transaction.getAmount(),
+                transaction.getRecurrenceGroupId(),
+                transaction.getRecurrenceType(),
+                recurrenceLabel(transaction),
+                transaction.getRecurrenceIndex(),
+                transaction.getRecurrenceTotal()
         );
+    }
+
+    private static String recurrenceLabel(Transaction transaction) {
+        if (!transaction.getRecurrenceType().recurring()) {
+            return "Não repetir";
+        }
+        if (transaction.getRecurrenceIndex() != null && transaction.getRecurrenceTotal() != null) {
+            return "%s %d/%d".formatted(transaction.getRecurrenceType().displayName(),
+                    transaction.getRecurrenceIndex(), transaction.getRecurrenceTotal());
+        }
+        return transaction.getRecurrenceType().displayName();
     }
 }

@@ -90,14 +90,16 @@ public class AccountController {
 
         Button save = UiUtils.primaryButton("Salvar");
         save.setOnAction(event -> save());
-        Button clear = UiUtils.secondaryButton("Nova conta");
-        clear.setOnAction(event -> clear());
+        Button newAccount = UiUtils.secondaryButton("Nova conta");
+        newAccount.setOnAction(event -> newSimilar());
+        Button reset = UiUtils.secondaryButton("Limpar formulário");
+        reset.setOnAction(event -> clear());
         Button deactivate = UiUtils.secondaryButton("Inativar");
         deactivate.setOnAction(event -> deactivate());
         Button delete = UiUtils.dangerButton("Excluir");
         delete.setOnAction(event -> delete());
 
-        return new VBox(10, grid, UiUtils.actions(save, clear, deactivate, delete));
+        return new VBox(10, grid, UiUtils.actions(save, newAccount, reset), UiUtils.actions(deactivate, delete));
     }
 
     private void save() {
@@ -112,8 +114,8 @@ public class AccountController {
                         activeCheck.isSelected());
                 Notification.success("Registro atualizado com sucesso.");
             }
-            clear();
             refresh();
+            newSimilar();
         } catch (BusinessException | IllegalArgumentException ex) {
             Notification.error(ex.getMessage() == null ? "Não foi possível concluir a operação." : ex.getMessage());
         }
@@ -168,6 +170,19 @@ public class AccountController {
         typeCombo.setValue(AccountType.CHECKING_ACCOUNT);
         initialBalanceField.setText("0,00");
         activeCheck.setSelected(true);
+    }
+
+    private void newSimilar() {
+        selected = null;
+        table.getSelectionModel().clearSelection();
+        nameField.clear();
+        if (typeCombo.getValue() == null) {
+            typeCombo.setValue(AccountType.CHECKING_ACCOUNT);
+        }
+        if (initialBalanceField.getText() == null || initialBalanceField.getText().isBlank()) {
+            initialBalanceField.setText("0,00");
+        }
+        nameField.requestFocus();
     }
 
     private void refresh() {

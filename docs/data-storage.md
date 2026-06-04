@@ -20,7 +20,7 @@ Esse diretório é criado automaticamente quando a aplicação inicia.
 O arquivo `config.properties` é recriado com padrões seguros quando ausente:
 
 ```properties
-app.version=1.1.1
+app.version=1.2.0
 database.path=%APPDATA%/HFinance/hfinance.db
 backup.retention.maxAutomaticBackups=10
 diagnostics.includeLogTail=true

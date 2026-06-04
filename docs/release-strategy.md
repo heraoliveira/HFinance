@@ -21,7 +21,7 @@ Hotfixes devem partir da linha estável:
 
 ```bash
 git checkout release/1.x
-git checkout -b hotfix/1.1.x-descricao-curta
+git checkout -b hotfix/1.x-descricao-curta
 ```
 
 ## Versionamento

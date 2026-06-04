@@ -11,7 +11,7 @@
 
 HFinance surge como uma solução desktop local para organização de finanças pessoais, criada para substituir planilhas e controles manuais por uma experiência clara, visual e em português brasileiro. A aplicação centraliza contas, receitas, despesas, orçamentos, metas financeiras e relatórios exportáveis para apoiar o acompanhamento do dinheiro no dia a dia.
 
-Versão atual: **1.1.1**.
+Versão atual: **1.2.0**.
 
 ## Demonstração
 
@@ -20,12 +20,15 @@ Versão atual: **1.1.1**.
 ## Funcionalidades
 
 - Cadastro, edição, inativação e exclusão permitida de contas.
-- Cadastro, edição, exclusão e filtros de transações.
-- Categorias padrão inseridas automaticamente na primeira execução.
+- Cadastro, edição, exclusão, filtros avançados e recorrência de transações.
+- Categorias padrão inseridas automaticamente na primeira execução e CRUD de categorias personalizadas.
 - Orçamentos mensais por categoria de despesa, com gasto e status calculados.
 - Metas financeiras com progresso e status automático.
-- Visão geral com cards, gráfico mensal, últimas transações, contas, alertas e metas.
-- Relatórios com filtros e exportação para Excel `.xlsx` e CSV.
+- Visão geral com cards, gráficos mensais, despesas por categoria, últimas transações, contas, alertas e metas.
+- Relatórios com filtros preservados na sessão, gráficos, cards de resumo e exportação para Excel `.xlsx` e CSV.
+- Exportações com UTF-8, nomes seguros com timestamp, autofiltro e cabeçalho congelado no Excel.
+- DatePicker estilizado com contraste adequado para mês, ano e dias do calendário.
+- Ícone em ciano e dourado com H maior para janela, barra de tarefas e empacotamento Windows.
 - Área **Sobre** com backup manual, abertura das pastas de dados, backups e logs, e exportação de diagnóstico.
 - Persistência local em SQLite com migrations Flyway, validação de integridade e backup automático antes de migrations em bancos existentes.
 
@@ -101,7 +104,10 @@ Fluxo de migração segura:
 - Conta ativa tem nome único.
 - Conta inativa não recebe novas transações.
 - Saldo atual não é armazenado; ele é calculado por saldo inicial + receitas - despesas.
-- Orçamento só aceita categoria de despesa.
+- Orçamento só aceita categoria de despesa ativa.
+- Categoria ativa tem nome único por tipo, ignorando maiúsculas, minúsculas e espaços extras.
+- Categoria usada em transações ou orçamentos deve ser inativada em vez de excluída fisicamente.
+- Transações recorrentes geram ocorrências individuais no cadastro, com limite seguro de 120 ocorrências.
 - Meta concluída, atrasada ou em andamento é calculada pelo valor atual e prazo.
 - Relatórios vazios não são exportados sem aviso.
 
@@ -159,24 +165,26 @@ Ele valida Java 17, Maven, `jpackage` e WiX, executa `mvn clean package`, usa o 
 
 ```text
 target/package/HFinance/HFinance.exe
-target/release/HFinance-v1.1.1-windows.zip
-target/release/HFinance-Setup-v1.1.1.exe
+target/release/HFinance-v1.2.0-windows.zip
+target/release/HFinance-Setup-v1.2.0.exe
 ```
 
-O ZIP portátil permite executar a aplicação sem instalador. O instalador Windows `.exe` integra o HFinance ao Windows, cria atalho no Menu Iniciar e usa a versão `1.1.1`.
+O ZIP portátil permite executar a aplicação sem instalador. O instalador Windows `.exe` integra o HFinance ao Windows, cria atalho no Menu Iniciar e usa a versão `1.2.0`.
 
 Ao desinstalar o HFinance, os dados financeiros locais permanecem em `%APPDATA%/HFinance`, salvo remoção manual explícita pelo usuário.
 
 ## Como Usar
 
-1. Abra o HFinance em desenvolvimento ou pelo `HFinance.exe`.
+1. Abra o HFinance pelo `HFinance.exe` ou execute a aplicação em ambiente de desenvolvimento.
 2. Cadastre ao menos uma conta em **Contas**.
-3. Cadastre receitas e despesas em **Transações**.
-4. Acompanhe saldo e evolução em **Visão geral**.
-5. Cadastre limites em **Orçamentos**.
-6. Cadastre objetivos em **Metas**.
-7. Use **Relatórios** para filtrar e exportar dados.
-8. Use **Sobre** para criar backup manual, abrir pastas técnicas ou exportar diagnóstico.
+3. Revise ou crie categorias em **Categorias** quando precisar personalizar receitas e despesas.
+4. Cadastre receitas e despesas em **Transações**.
+5. Use recorrência em **Transações** para gerar parcelas, assinaturas ou receitas futuras com limite definido.
+6. Acompanhe saldo e evolução em **Visão geral**.
+7. Cadastre limites em **Orçamentos**.
+8. Cadastre objetivos em **Metas**.
+9. Use **Relatórios** para filtrar, visualizar gráficos e exportar dados.
+10. Use **Sobre** para criar backup manual, abrir pastas técnicas ou exportar diagnóstico.
 
 ## Versionamento e Branches
 
@@ -195,7 +203,7 @@ Hotfixes da linha 1.x devem partir de `release/1.x`:
 
 ```bash
 git checkout release/1.x
-git checkout -b hotfix/1.1.x-descricao-curta
+git checkout -b hotfix/1.x-descricao-curta
 ```
 
 ## Limitações da Linha 1.x
@@ -209,7 +217,6 @@ git checkout -b hotfix/1.1.x-descricao-curta
 - Não substitui software contábil profissional.
 - Cartão é apenas método de pagamento.
 - Dados ficam locais no computador do usuário.
-- Categorias são padrão.
 - Não há multiusuário.
 
 Mudanças como API obrigatória, nuvem, aplicativo Android, autenticação e nova arquitetura ficam reservadas para `2.0.0` ou superior.
