@@ -153,6 +153,27 @@ public class JdbcTransactionRepository implements TransactionRepository {
     }
 
     @Override
+    public List<Transaction> findRecurringFrom(String recurrenceGroupId, LocalDate startDate) {
+        String sql = """
+                SELECT *
+                  FROM transactions
+                 WHERE recurrence_group_id = ?
+                   AND transaction_date >= ?
+                 ORDER BY transaction_date ASC, id ASC
+                """;
+        try (Connection connection = connectionFactory.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, recurrenceGroupId);
+            statement.setString(2, startDate.toString());
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return readList(resultSet);
+            }
+        } catch (SQLException ex) {
+            throw new RepositoryException("Não foi possível listar as transações recorrentes.", ex);
+        }
+    }
+
+    @Override
     public BigDecimal calculateAccountMovement(Long accountId) {
         String sql = """
                 SELECT COALESCE(SUM(CASE

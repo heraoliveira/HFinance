@@ -92,4 +92,27 @@ class RepositoryTest {
         assertThat(found.getRecurrenceIndex()).isEqualTo(2);
         assertThat(found.getRecurrenceTotal()).isEqualTo(12);
     }
+
+    @Test
+    void findsRecurringTransactionsFromSelectedDate() {
+        TestSupport.Fixture fixture = TestSupport.fixture(tempDir);
+        Account account = fixture.accountRepository().save(Account.newAccount("Principal", "Banco",
+                AccountType.CHECKING_ACCOUNT, new BigDecimal("0.00")));
+        Category category = fixture.expenseCategory();
+
+        for (int index = 0; index < 4; index++) {
+            Transaction transaction = Transaction.newTransaction(account.getId(), category.getId(),
+                    LocalDate.of(2026, 1, 10).plusMonths(index), TransactionType.EXPENSE, PaymentMethod.PIX,
+                    "Assinatura", new BigDecimal("39.90"));
+            transaction.setRecurrenceGroupId("grupo-2");
+            transaction.setRecurrenceType(RecurrenceType.MONTHLY);
+            transaction.setRecurrenceIndex(index + 1);
+            transaction.setRecurrenceTotal(4);
+            fixture.transactionRepository().save(transaction);
+        }
+
+        assertThat(fixture.transactionRepository().findRecurringFrom("grupo-2", LocalDate.of(2026, 3, 10)))
+                .extracting(Transaction::getTransactionDate)
+                .containsExactly(LocalDate.of(2026, 3, 10), LocalDate.of(2026, 4, 10));
+    }
 }

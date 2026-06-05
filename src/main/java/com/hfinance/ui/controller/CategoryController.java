@@ -8,16 +8,19 @@ import com.hfinance.ui.component.Notification;
 import javafx.collections.FXCollections;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
@@ -70,9 +73,8 @@ public class CategoryController {
         }
         table.setPlaceholder(new javafx.scene.control.Label("Nenhuma categoria cadastrada."));
         table.getColumns().addAll(
-                UiUtils.column("Nome", CategoryDTO::name),
+                nameColumn(),
                 UiUtils.column("Tipo", CategoryDTO::typeLabel),
-                UiUtils.column("Cor", CategoryDTO::color),
                 UiUtils.column("Origem", CategoryDTO::originLabel),
                 UiUtils.column("Status", CategoryDTO::statusLabel)
         );
@@ -116,14 +118,12 @@ public class CategoryController {
 
         Button save = UiUtils.primaryButton("Salvar");
         save.setOnAction(event -> save());
-        Button newSimilar = UiUtils.secondaryButton("Nova categoria");
-        newSimilar.setOnAction(event -> newSimilar());
         Button reset = UiUtils.secondaryButton("Limpar formulário");
         reset.setOnAction(event -> clear());
         statusButton.setOnAction(event -> toggleStatus());
         Button delete = UiUtils.dangerButton("Excluir");
         delete.setOnAction(event -> delete());
-        return new VBox(10, grid, UiUtils.actions(save, newSimilar, reset), UiUtils.actions(statusButton, delete));
+        return new VBox(10, grid, UiUtils.actions(save, reset), UiUtils.actions(statusButton, delete));
     }
 
     private void save() {
@@ -137,7 +137,7 @@ public class CategoryController {
                 Notification.success("Categoria atualizada com sucesso.");
             }
             refresh();
-            newSimilar();
+            clear();
         } catch (BusinessException | IllegalArgumentException ex) {
             Notification.error(ex.getMessage() == null ? "Não foi possível concluir a operação." : ex.getMessage());
         }
@@ -168,7 +168,7 @@ public class CategoryController {
             Notification.error("Selecione uma categoria.");
             return;
         }
-        if (Notification.confirm("Deseja realmente excluir esta categoria?").orElse(ButtonType.CANCEL) != ButtonType.OK) {
+        if (!Notification.confirm("Deseja realmente excluir esta categoria?")) {
             return;
         }
         try {
@@ -192,16 +192,6 @@ public class CategoryController {
         activeCheck.setSelected(category.active());
         activeCheck.setDisable(false);
         statusButton.setText(category.active() ? "Inativar" : "Reativar");
-    }
-
-    private void newSimilar() {
-        selected = null;
-        table.getSelectionModel().clearSelection();
-        nameField.clear();
-        activeCheck.setSelected(true);
-        activeCheck.setDisable(true);
-        statusButton.setText("Inativar");
-        nameField.requestFocus();
     }
 
     private void clear() {
@@ -235,9 +225,41 @@ public class CategoryController {
     private VBox categoryHints() {
         return new VBox(10,
                 UiUtils.helperText("Categorias inativas não aparecem como opção padrão em novos cadastros."),
+                UiUtils.helperText("Categorias sem uso podem ser excluídas, inclusive as padrão."),
                 UiUtils.helperText("Categorias usadas em transações ou orçamentos devem ser inativadas em vez de excluídas."),
                 UiUtils.helperText("O nome ativo é único por tipo, ignorando maiúsculas, minúsculas e espaços extras.")
         );
+    }
+
+    private TableColumn<CategoryDTO, String> nameColumn() {
+        TableColumn<CategoryDTO, String> column = UiUtils.column("Nome", CategoryDTO::name);
+        column.setCellFactory(tableColumn -> new TableCell<>() {
+            private final Region swatch = new Region();
+            private final Label label = new Label();
+            private final HBox box = new HBox(8, swatch, label);
+
+            {
+                swatch.getStyleClass().add("category-swatch");
+                swatch.setMinSize(12, 12);
+                swatch.setPrefSize(12, 12);
+            }
+
+            @Override
+            protected void updateItem(String name, boolean empty) {
+                super.updateItem(name, empty);
+                if (empty || name == null || getIndex() < 0 || getIndex() >= getTableView().getItems().size()) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+                CategoryDTO category = getTableView().getItems().get(getIndex());
+                swatch.setStyle("-fx-background-color: %s;".formatted(category.color()));
+                label.setText(name);
+                setGraphic(box);
+                setText(null);
+            }
+        });
+        return column;
     }
 
     private String selectedColor() {

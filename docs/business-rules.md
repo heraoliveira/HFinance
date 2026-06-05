@@ -19,17 +19,19 @@
 - Transações futuras são permitidas.
 - Transação recorrente é opcional e gera ocorrências individuais no momento do cadastro.
 - Recorrência aceita semanal, mensal e anual.
-- Recorrência deve ter quantidade ou data final, sem recorrência infinita.
-- O limite seguro é de 120 ocorrências.
-- Editar ou excluir uma transação recorrente altera apenas a ocorrência selecionada na versão 1.2.0.
+- Recorrência deve ter quantidade de repetições adicionais, sem recorrência infinita.
+- O limite seguro é de 120 repetições adicionais.
+- Editar uma transação recorrente permite alterar somente a ocorrência selecionada ou a ocorrência selecionada e as próximas da mesma série.
+- Excluir uma transação recorrente altera apenas a ocorrência selecionada.
 
 ## Categorias
 
 - Categorias padrão são inseridas na primeira execução.
 - Categorias personalizadas podem ser criadas, editadas, inativadas e excluídas quando nunca foram usadas.
 - Nome ativo deve ser único por tipo, ignorando maiúsculas, minúsculas e espaços extras.
-- Categoria padrão não é excluída fisicamente.
+- Categoria padrão sem uso pode ser excluída fisicamente.
 - Categoria usada em transações ou orçamentos deve ser inativada em vez de excluída.
+- `Freelance` e `Presente` não permanecem como categorias padrão em bancos novos.
 - Categoria inativa não aparece como opção padrão em novos cadastros.
 - Transação deve usar categoria do mesmo tipo da transação.
 - Orçamento só aceita categoria de despesa ativa.

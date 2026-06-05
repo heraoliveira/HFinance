@@ -11,6 +11,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -87,9 +88,22 @@ final class UiUtils {
     static ScrollPane scrollable(Node content) {
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
+        scrollPane.setPannable(true);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.getStyleClass().add("content-scroll");
+        scrollPane.addEventFilter(ScrollEvent.SCROLL, event -> {
+            if (event.getDeltaY() == 0 || isInsideTable(event.getTarget())) {
+                return;
+            }
+            double scrollableHeight = content.getBoundsInLocal().getHeight() - scrollPane.getViewportBounds().getHeight();
+            if (scrollableHeight <= 0) {
+                return;
+            }
+            double nextValue = scrollPane.getVvalue() - (event.getDeltaY() / scrollableHeight);
+            scrollPane.setVvalue(clamp(nextValue, 0, 1));
+            event.consume();
+        });
         return scrollPane;
     }
 
@@ -162,5 +176,20 @@ final class UiUtils {
 
     static String date(LocalDate date) {
         return DateFormatter.format(date);
+    }
+
+    private static boolean isInsideTable(javafx.event.EventTarget target) {
+        Object current = target;
+        while (current instanceof Node node) {
+            if (node instanceof TableView<?>) {
+                return true;
+            }
+            current = node.getParent();
+        }
+        return false;
+    }
+
+    private static double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
     }
 }

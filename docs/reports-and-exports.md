@@ -1,6 +1,6 @@
 # Relatórios e Exportações
 
-A versão 1.2.0 melhora relatórios e exportações mantendo a fonte de verdade nos services existentes.
+A versão 1.2.1 mantém relatórios e exportações na fonte de verdade dos services existentes.
 
 ## Relatórios
 

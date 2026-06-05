@@ -9,7 +9,6 @@ import com.hfinance.ui.component.Notification;
 import javafx.collections.FXCollections;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableView;
@@ -47,7 +46,7 @@ public class AccountController {
         root.setMaxWidth(Double.MAX_VALUE);
         HBox layout = new HBox(16);
         VBox tablePanel = UiUtils.panel("Contas cadastradas", table);
-        VBox sidePanel = new VBox(16, UiUtils.panel("Nova conta", form()), UiUtils.compactPanel("Análise das contas", accountHints()));
+        VBox sidePanel = new VBox(16, UiUtils.panel("Conta", form()), UiUtils.compactPanel("Análise das contas", accountHints()));
         HBox.setHgrow(tablePanel, Priority.ALWAYS);
         tablePanel.setMinWidth(620);
         sidePanel.setPrefWidth(390);
@@ -90,8 +89,6 @@ public class AccountController {
 
         Button save = UiUtils.primaryButton("Salvar");
         save.setOnAction(event -> save());
-        Button newAccount = UiUtils.secondaryButton("Nova conta");
-        newAccount.setOnAction(event -> newSimilar());
         Button reset = UiUtils.secondaryButton("Limpar formulário");
         reset.setOnAction(event -> clear());
         Button deactivate = UiUtils.secondaryButton("Inativar");
@@ -99,7 +96,7 @@ public class AccountController {
         Button delete = UiUtils.dangerButton("Excluir");
         delete.setOnAction(event -> delete());
 
-        return new VBox(10, grid, UiUtils.actions(save, newAccount, reset), UiUtils.actions(deactivate, delete));
+        return new VBox(10, grid, UiUtils.actions(save, reset), UiUtils.actions(deactivate, delete));
     }
 
     private void save() {
@@ -115,7 +112,7 @@ public class AccountController {
                 Notification.success("Registro atualizado com sucesso.");
             }
             refresh();
-            newSimilar();
+            clear();
         } catch (BusinessException | IllegalArgumentException ex) {
             Notification.error(ex.getMessage() == null ? "Não foi possível concluir a operação." : ex.getMessage());
         }
@@ -137,7 +134,7 @@ public class AccountController {
             Notification.error("Selecione uma conta.");
             return;
         }
-        if (Notification.confirm("Deseja realmente excluir este registro?").orElse(ButtonType.CANCEL) != ButtonType.OK) {
+        if (!Notification.confirm("Deseja realmente excluir este registro?")) {
             return;
         }
         try {
@@ -170,19 +167,6 @@ public class AccountController {
         typeCombo.setValue(AccountType.CHECKING_ACCOUNT);
         initialBalanceField.setText("0,00");
         activeCheck.setSelected(true);
-    }
-
-    private void newSimilar() {
-        selected = null;
-        table.getSelectionModel().clearSelection();
-        nameField.clear();
-        if (typeCombo.getValue() == null) {
-            typeCombo.setValue(AccountType.CHECKING_ACCOUNT);
-        }
-        if (initialBalanceField.getText() == null || initialBalanceField.getText().isBlank()) {
-            initialBalanceField.setText("0,00");
-        }
-        nameField.requestFocus();
     }
 
     private void refresh() {

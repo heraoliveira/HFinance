@@ -2,15 +2,12 @@ package com.hfinance.application.dto;
 
 import com.hfinance.domain.enums.RecurrenceType;
 
-import java.time.LocalDate;
-
 public record RecurrenceRequest(
         RecurrenceType type,
-        Integer repetitions,
-        LocalDate endDate
+        Integer repetitions
 ) {
     public static RecurrenceRequest none() {
-        return new RecurrenceRequest(RecurrenceType.NONE, null, null);
+        return new RecurrenceRequest(RecurrenceType.NONE, null);
     }
 
     public RecurrenceType safeType() {

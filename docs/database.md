@@ -58,6 +58,7 @@ Se a validação falhar, migrations não são executadas e a inicialização exi
 - `V1__create_initial_schema.sql`: cria tabelas e índices.
 - `V2__insert_default_categories.sql`: insere categorias padrão.
 - `V3__quality_usability_1_2.sql`: adiciona categorias ativas, metadado de atualização, recorrência de transações e índices de filtros.
+- `V4__hotfix_1_2_1.sql`: remove categorias padrão obsoletas quando não há uso, inativa-as quando há histórico e adiciona índice para edição de séries recorrentes futuras.
 
 Regras:
 

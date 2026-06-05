@@ -16,6 +16,7 @@ public interface TransactionRepository {
     List<Transaction> findAll();
     List<Transaction> findLatest(int limit);
     List<Transaction> findByFilter(TransactionFilterDTO filter);
+    List<Transaction> findRecurringFrom(String recurrenceGroupId, LocalDate startDate);
     BigDecimal calculateAccountMovement(Long accountId);
     BigDecimal sumExpensesByCategoryAndMonth(Long categoryId, int month, int year);
     List<Transaction> findBetween(LocalDate startDate, LocalDate endDate);
