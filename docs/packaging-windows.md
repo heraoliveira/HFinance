@@ -52,16 +52,16 @@ target/package/HFinance/HFinance.exe
 ZIP portátil:
 
 ```text
-target/release/HFinance-v1.2.0-windows.zip
+target/release/HFinance-v1.2.1-windows.zip
 ```
 
 Instalador Windows:
 
 ```text
-target/release/HFinance-Setup-v1.2.0.exe
+target/release/HFinance-Setup-v1.2.1.exe
 ```
 
-O ZIP contém `HFinance.exe`, `runtime/`, `app/` e recursos necessários para execução. O instalador integra o HFinance ao Windows, cria atalho no Menu Iniciar, usa o ícone correto em `src/main/resources/images/app-icon.ico` e exibe a versão `1.2.0`.
+O ZIP contém `HFinance.exe`, `runtime/`, `app/` e recursos necessários para execução. O ZIP não mantém `HFinance.ico` solto no topo da imagem portátil; `HFinance.exe` é o único executável visível no topo da pasta empacotada. O instalador integra o HFinance ao Windows, cria atalho no Menu Iniciar, usa o ícone correto em `src/main/resources/images/app-icon.ico` e exibe a versão `1.2.1`.
 
 ## Dados do Usuário
 

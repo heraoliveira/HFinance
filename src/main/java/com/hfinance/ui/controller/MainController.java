@@ -1,6 +1,7 @@
 package com.hfinance.ui.controller;
 
 import com.hfinance.core.config.HFinanceContext;
+import com.hfinance.ui.component.Notification;
 import com.hfinance.ui.component.SidebarMenu;
 import com.hfinance.ui.navigation.Router;
 import javafx.scene.Parent;
@@ -10,20 +11,23 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 
 public class MainController {
-    private final BorderPane root = new BorderPane();
+    private final StackPane root = new StackPane();
+    private final BorderPane shell = new BorderPane();
     private final Label title = new Label("Visão geral");
 
     public MainController(HFinanceContext context) {
-        root.getStyleClass().add("app-root");
+        shell.getStyleClass().add("app-root");
+        root.getChildren().add(shell);
+        Notification.install(root);
         title.getStyleClass().add("screen-title");
 
         HBox topbar = new HBox(title);
         topbar.getStyleClass().add("topbar");
-        root.setTop(topbar);
+        shell.setTop(topbar);
 
-        Router router = new Router(root, title);
+        Router router = new Router(shell, title);
         SidebarMenu sidebarMenu = new SidebarMenu(router::navigate);
-        root.setLeft(sidebarMenu);
+        shell.setLeft(sidebarMenu);
 
         router.register("Visão geral", () -> content(new DashboardController(context).getView()));
         router.register("Contas", () -> content(new AccountController(context).getView()));

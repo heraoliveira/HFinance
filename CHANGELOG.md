@@ -2,6 +2,22 @@
 
 Todas as mudanças relevantes do HFinance são documentadas neste arquivo.
 
+## [1.2.1] - 2026-06-05
+
+### Corrigido
+
+- Sincronizada a versão `1.2.1` no Maven, aplicação e empacotamento Windows.
+- Corrigido o ZIP portátil para não expor `HFinance.ico` solto ao lado de `HFinance.exe`.
+- Removidos botões redundantes de novo cadastro nos formulários de contas, transações, categorias, orçamentos e metas.
+- Substituídos alertas comuns de sucesso, erro e confirmação por notificações e modais internos na janela do HFinance.
+- Removido o campo `Data final` da recorrência de transações.
+- Ajustada a quantidade de recorrência para representar repetições adicionais, com limite de 1 a 120.
+- Adicionada confirmação interna para editar somente a transação recorrente selecionada ou a selecionada e as próximas da série.
+- Permitida a exclusão física de categorias padrão sem uso e bloqueada a exclusão de categorias usadas com orientação para inativação.
+- Removidas as categorias padrão `Freelance` e `Presente` em novos bancos e inativadas em bancos existentes quando já estiverem em uso.
+- Substituída a coluna textual de cor por amostra visual na tabela de categorias.
+- Melhorada a resposta de rolagem nas telas com conteúdo vertical.
+
 ## [1.2.0] - 2026-06-04
 
 ### Adicionado

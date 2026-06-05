@@ -29,9 +29,10 @@ mvn package
 - Conta ativa tem nome único.
 - Conta inativa não recebe novas transações.
 - Categorias ativas têm nome único por tipo.
+- Categoria padrão ou personalizada sem uso pode ser excluída fisicamente.
 - Categoria usada não é excluída fisicamente.
 - Categoria inativa não aparece em novos cadastros.
-- Recorrência respeita quantidade, data final e limite de 120 ocorrências.
+- Recorrência respeita quantidade de repetições adicionais, edição da série futura e limite de 120 repetições.
 - Orçamento só aceita categoria de despesa ativa.
 - Meta calcula status automaticamente.
 - Relatório vazio não exporta sem aviso.

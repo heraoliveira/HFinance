@@ -1,7 +1,7 @@
 param()
 
 $ErrorActionPreference = "Stop"
-$AppVersion = "1.2.0"
+$AppVersion = "1.2.1"
 $ProjectRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 Set-Location $ProjectRoot
 
@@ -166,6 +166,9 @@ if (-not (Test-Path $ExePath)) {
     throw "O jpackage terminou, mas HFinance.exe não foi encontrado em $AppImageDir."
 }
 Write-Host "Aplicação empacotada com sucesso: $ExePath"
+
+$LooseIconPath = Join-Path $AppImageDir "HFinance.ico"
+Remove-FileInsideProject $LooseIconPath
 
 Write-Host "Gerando ZIP portátil..."
 Compress-Archive -LiteralPath $AppImageDir -DestinationPath $PortableZipPath -CompressionLevel Optimal

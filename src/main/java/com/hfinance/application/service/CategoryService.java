@@ -54,15 +54,9 @@ public class CategoryService {
     }
 
     public void delete(Long id) {
-        Category category = findRequired(id);
-        if (category.isDefaultCategory()) {
-            throw new BusinessException("Categorias padrão não podem ser excluídas. Inative a categoria se não quiser usá-la em novos cadastros.");
-        }
-        if (categoryRepository.hasTransactions(id)) {
-            throw new BusinessException("Não é possível excluir uma categoria que já possui transações.");
-        }
-        if (categoryRepository.hasBudgets(id)) {
-            throw new BusinessException("Não é possível excluir uma categoria que já possui orçamentos.");
+        findRequired(id);
+        if (categoryRepository.hasTransactions(id) || categoryRepository.hasBudgets(id)) {
+            throw new BusinessException("Não é possível excluir esta categoria porque ela já está em uso. Você pode inativá-la para evitar novos lançamentos.");
         }
         categoryRepository.delete(id);
     }

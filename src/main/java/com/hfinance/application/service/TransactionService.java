@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class TransactionService {
-    private static final int MAX_RECURRENCE_OCCURRENCES = 120;
+    private static final int MAX_ADDITIONAL_REPETITIONS = 120;
 
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
@@ -82,6 +82,37 @@ public class TransactionService {
         return toDTO(updated);
     }
 
+    public List<TransactionDTO> updateRecurringFrom(Long selectedId, Long accountId, Long categoryId, LocalDate selectedDate,
+                                                    TransactionType type, PaymentMethod paymentMethod,
+                                                    String description, BigDecimal amount) {
+        Transaction selectedTransaction = getRequired(selectedId);
+        if (selectedTransaction.getRecurrenceGroupId() == null || selectedTransaction.getRecurrenceGroupId().isBlank()) {
+            return List.of(update(selectedId, accountId, categoryId, selectedDate, type, paymentMethod, description, amount));
+        }
+
+        List<Transaction> affected = transactionRepository.findRecurringFrom(
+                selectedTransaction.getRecurrenceGroupId(),
+                selectedTransaction.getTransactionDate());
+        if (affected.isEmpty()) {
+            return List.of(update(selectedId, accountId, categoryId, selectedDate, type, paymentMethod, description, amount));
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        List<TransactionDTO> updated = new ArrayList<>();
+        for (Transaction transaction : affected) {
+            LocalDate date = transaction.getId().equals(selectedId) ? selectedDate : transaction.getTransactionDate();
+            Transaction updatedTransaction = new Transaction(transaction.getId(), accountId, categoryId, date,
+                    type, paymentMethod, description == null ? "" : description, amount,
+                    transaction.getRecurrenceGroupId(), transaction.getRecurrenceType(),
+                    transaction.getRecurrenceIndex(), transaction.getRecurrenceTotal(),
+                    transaction.getCreatedAt(), now);
+            validateTransaction(updatedTransaction, false);
+            transactionRepository.update(updatedTransaction);
+            updated.add(toDTO(updatedTransaction));
+        }
+        return updated;
+    }
+
     public void delete(Long id) {
         getRequired(id);
         transactionRepository.delete(id);
@@ -123,33 +154,16 @@ public class TransactionService {
             throw new ValidationException("Selecione uma data.");
         }
         Integer repetitions = recurrence.repetitions();
-        LocalDate endDate = recurrence.endDate();
-        if (repetitions == null && endDate == null) {
-            throw new ValidationException("Informe a quantidade de repetições ou a data final da recorrência.");
+        if (repetitions == null) {
+            throw new ValidationException("Informe a quantidade de repetições.");
         }
-        if (repetitions != null && repetitions <= 0) {
+        if (repetitions <= 0) {
             throw new ValidationException("A quantidade de repetições deve ser maior que zero.");
         }
-        if (endDate != null && endDate.isBefore(startDate)) {
-            throw new ValidationException("A data final da recorrência deve ser igual ou posterior à data inicial.");
+        if (repetitions > MAX_ADDITIONAL_REPETITIONS) {
+            throw new ValidationException("A quantidade de repetições deve ser no máximo 120.");
         }
-        int occurrenceLimit = repetitions == null ? MAX_RECURRENCE_OCCURRENCES : repetitions;
-        if (occurrenceLimit > MAX_RECURRENCE_OCCURRENCES) {
-            throw new ValidationException("A recorrência permite no máximo 120 ocorrências.");
-        }
-        if (endDate == null) {
-            return occurrenceLimit;
-        }
-        int occurrencesByEndDate = 0;
-        LocalDate occurrenceDate = startDate;
-        while (!occurrenceDate.isAfter(endDate) && occurrencesByEndDate < MAX_RECURRENCE_OCCURRENCES) {
-            occurrencesByEndDate++;
-            occurrenceDate = recurrence.safeType().nextDate(startDate, occurrencesByEndDate);
-        }
-        if (occurrencesByEndDate == 0) {
-            throw new ValidationException("A recorrência deve gerar pelo menos uma transação.");
-        }
-        return Math.min(occurrenceLimit, occurrencesByEndDate);
+        return repetitions + 1;
     }
 
     private void validateTransaction(Transaction transaction, boolean requireActiveCategory) {

@@ -11,7 +11,7 @@
 
 HFinance surge como uma solução desktop local para organização de finanças pessoais, criada para substituir planilhas e controles manuais por uma experiência clara, visual e em português brasileiro. A aplicação centraliza contas, receitas, despesas, orçamentos, metas financeiras e relatórios exportáveis para apoiar o acompanhamento do dinheiro no dia a dia.
 
-Versão atual: **1.2.0**.
+Versão atual: **1.2.1**.
 
 ## Demonstração
 
@@ -20,8 +20,8 @@ Versão atual: **1.2.0**.
 ## Funcionalidades
 
 - Cadastro, edição, inativação e exclusão permitida de contas.
-- Cadastro, edição, exclusão, filtros avançados e recorrência de transações.
-- Categorias padrão inseridas automaticamente na primeira execução e CRUD de categorias personalizadas.
+- Cadastro, edição, exclusão, filtros avançados e recorrência de transações com controle de edição da série futura.
+- Categorias padrão essenciais na primeira execução e CRUD de categorias com status, cor visual e exclusão quando não há uso.
 - Orçamentos mensais por categoria de despesa, com gasto e status calculados.
 - Metas financeiras com progresso e status automático.
 - Visão geral com cards, gráficos mensais, despesas por categoria, últimas transações, contas, alertas e metas.
@@ -106,8 +106,10 @@ Fluxo de migração segura:
 - Saldo atual não é armazenado; ele é calculado por saldo inicial + receitas - despesas.
 - Orçamento só aceita categoria de despesa ativa.
 - Categoria ativa tem nome único por tipo, ignorando maiúsculas, minúsculas e espaços extras.
+- Categoria sem uso pode ser excluída fisicamente, inclusive quando for padrão.
 - Categoria usada em transações ou orçamentos deve ser inativada em vez de excluída fisicamente.
-- Transações recorrentes geram ocorrências individuais no cadastro, com limite seguro de 120 ocorrências.
+- Transações recorrentes geram ocorrências individuais no cadastro. A quantidade representa repetições adicionais e aceita de 1 a 120 repetições.
+- Ao editar uma transação recorrente, a aplicação permite alterar somente a ocorrência selecionada ou a ocorrência selecionada e as próximas da mesma série.
 - Meta concluída, atrasada ou em andamento é calculada pelo valor atual e prazo.
 - Relatórios vazios não são exportados sem aviso.
 
@@ -165,11 +167,11 @@ Ele valida Java 17, Maven, `jpackage` e WiX, executa `mvn clean package`, usa o 
 
 ```text
 target/package/HFinance/HFinance.exe
-target/release/HFinance-v1.2.0-windows.zip
-target/release/HFinance-Setup-v1.2.0.exe
+target/release/HFinance-v1.2.1-windows.zip
+target/release/HFinance-Setup-v1.2.1.exe
 ```
 
-O ZIP portátil permite executar a aplicação sem instalador. O instalador Windows `.exe` integra o HFinance ao Windows, cria atalho no Menu Iniciar e usa a versão `1.2.0`.
+O ZIP portátil permite executar a aplicação sem instalador e mantém `HFinance.exe` como único executável visível no topo da pasta empacotada. O instalador Windows `.exe` integra o HFinance ao Windows, cria atalho no Menu Iniciar e usa a versão `1.2.1`.
 
 Ao desinstalar o HFinance, os dados financeiros locais permanecem em `%APPDATA%/HFinance`, salvo remoção manual explícita pelo usuário.
 
@@ -179,7 +181,7 @@ Ao desinstalar o HFinance, os dados financeiros locais permanecem em `%APPDATA%/
 2. Cadastre ao menos uma conta em **Contas**.
 3. Revise ou crie categorias em **Categorias** quando precisar personalizar receitas e despesas.
 4. Cadastre receitas e despesas em **Transações**.
-5. Use recorrência em **Transações** para gerar parcelas, assinaturas ou receitas futuras com limite definido.
+5. Use recorrência em **Transações** para gerar parcelas, assinaturas ou receitas futuras informando a quantidade de repetições adicionais.
 6. Acompanhe saldo e evolução em **Visão geral**.
 7. Cadastre limites em **Orçamentos**.
 8. Cadastre objetivos em **Metas**.

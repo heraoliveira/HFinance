@@ -17,7 +17,6 @@ import com.hfinance.ui.component.Notification;
 import javafx.collections.FXCollections;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -49,7 +48,7 @@ public class TransactionController {
     private final TextField amountField = UiUtils.textField("Ex.: 150,00");
     private final ComboBox<RecurrenceType> recurrenceCombo = new ComboBox<>();
     private final TextField recurrenceCountField = UiUtils.textField("Ex.: 12");
-    private final DatePicker recurrenceEndPicker = new DatePicker();
+    private final Label recurrenceCountLabel = new Label("Quantidade");
     private final Label recurrenceSummary = UiUtils.helperText("Recorrência desativada.");
     private final DatePicker startFilter = new DatePicker();
     private final DatePicker endFilter = new DatePicker();
@@ -76,7 +75,7 @@ public class TransactionController {
         root.setMaxWidth(Double.MAX_VALUE);
         VBox left = new VBox(16, UiUtils.panel("Filtros", filters()), UiUtils.panel("Transações", table));
         VBox right = new VBox(16,
-                UiUtils.panel("Nova transação", form()),
+                UiUtils.panel("Transação", form()),
                 UiUtils.compactPanel("Leitura rápida", transactionHints()));
         HBox.setHgrow(left, Priority.ALWAYS);
         left.setMinWidth(640);
@@ -119,6 +118,7 @@ public class TransactionController {
         paymentCombo.setItems(FXCollections.observableArrayList(Arrays.asList(PaymentMethod.values())));
         paymentFilter.setItems(FXCollections.observableArrayList(Arrays.asList(PaymentMethod.values())));
         recurrenceCombo.setItems(FXCollections.observableArrayList(Arrays.asList(RecurrenceType.values())));
+        recurrenceCountLabel.getStyleClass().add("form-label");
         typeCombo.valueProperty().addListener((obs, old, value) -> {
             loadCategories(value);
             if (selected == null) {
@@ -174,18 +174,17 @@ public class TransactionController {
         UiUtils.addRow(grid, 5, "Descrição", descriptionField);
         UiUtils.addRow(grid, 6, "Valor", amountField);
         UiUtils.addRow(grid, 7, "Repetir", recurrenceCombo);
-        UiUtils.addRow(grid, 8, "Quantidade", recurrenceCountField);
-        UiUtils.addRow(grid, 9, "Data final", recurrenceEndPicker);
+        grid.add(recurrenceCountLabel, 0, 8);
+        grid.add(recurrenceCountField, 1, 8);
+        GridPane.setHgrow(recurrenceCountField, Priority.ALWAYS);
 
         Button save = UiUtils.primaryButton("Salvar");
         save.setOnAction(event -> save());
-        Button newTransaction = UiUtils.secondaryButton("Nova transação");
-        newTransaction.setOnAction(event -> prepareNewBasedOnCurrent());
         Button reset = UiUtils.secondaryButton("Limpar formulário");
         reset.setOnAction(event -> clearForm());
         Button delete = UiUtils.dangerButton("Excluir");
         delete.setOnAction(event -> delete());
-        return new VBox(10, grid, recurrenceSummary, UiUtils.actions(save, newTransaction, reset), UiUtils.actions(delete));
+        return new VBox(10, grid, recurrenceSummary, UiUtils.actions(save, reset), UiUtils.actions(delete));
     }
 
     private void save() {
@@ -201,12 +200,29 @@ public class TransactionController {
                         ? "Registro salvo com sucesso."
                         : "%d transações recorrentes foram criadas com sucesso.".formatted(created.size()));
             } else {
-                context.transactionService().update(selected.id(), accountId, categoryId, datePicker.getValue(),
-                        typeCombo.getValue(), paymentCombo.getValue(), descriptionField.getText(), amount);
-                Notification.success("Registro atualizado com sucesso.");
+                if (selected.recurrenceGroupId() != null && !selected.recurrenceGroupId().isBlank()) {
+                    Notification.RecurringEditChoice choice = Notification.confirmRecurringEdit();
+                    if (choice == Notification.RecurringEditChoice.CANCEL) {
+                        return;
+                    }
+                    if (choice == Notification.RecurringEditChoice.CURRENT_AND_FUTURE) {
+                        List<TransactionDTO> updated = context.transactionService().updateRecurringFrom(selected.id(),
+                                accountId, categoryId, datePicker.getValue(), typeCombo.getValue(),
+                                paymentCombo.getValue(), descriptionField.getText(), amount);
+                        Notification.success("%d transações recorrentes foram atualizadas com sucesso.".formatted(updated.size()));
+                    } else {
+                        context.transactionService().update(selected.id(), accountId, categoryId, datePicker.getValue(),
+                                typeCombo.getValue(), paymentCombo.getValue(), descriptionField.getText(), amount);
+                        Notification.success("Registro atualizado com sucesso.");
+                    }
+                } else {
+                    context.transactionService().update(selected.id(), accountId, categoryId, datePicker.getValue(),
+                            typeCombo.getValue(), paymentCombo.getValue(), descriptionField.getText(), amount);
+                    Notification.success("Registro atualizado com sucesso.");
+                }
             }
             applyFilters();
-            prepareNewBasedOnCurrent();
+            clearForm();
         } catch (BusinessException | IllegalArgumentException ex) {
             Notification.error(ex.getMessage() == null ? "Não foi possível concluir a operação." : ex.getMessage());
         }
@@ -217,15 +233,14 @@ public class TransactionController {
         if (!type.recurring()) {
             return RecurrenceRequest.none();
         }
-        Integer repetitions = null;
-        if (recurrenceCountField.getText() != null && !recurrenceCountField.getText().isBlank()) {
-            try {
-                repetitions = Integer.parseInt(recurrenceCountField.getText().trim());
-            } catch (NumberFormatException ex) {
-                throw new ValidationException("Informe uma quantidade de repetições válida.");
-            }
+        if (recurrenceCountField.getText() == null || recurrenceCountField.getText().isBlank()) {
+            throw new ValidationException("Informe a quantidade de repetições.");
         }
-        return new RecurrenceRequest(type, repetitions, recurrenceEndPicker.getValue());
+        try {
+            return new RecurrenceRequest(type, Integer.parseInt(recurrenceCountField.getText().trim()));
+        } catch (NumberFormatException ex) {
+            throw new ValidationException("Informe uma quantidade de repetições válida.");
+        }
     }
 
     private void delete() {
@@ -233,7 +248,7 @@ public class TransactionController {
             Notification.error("Selecione uma transação.");
             return;
         }
-        if (Notification.confirm("Deseja realmente excluir este registro?").orElse(ButtonType.CANCEL) != ButtonType.OK) {
+        if (!Notification.confirm("Deseja realmente excluir este registro?")) {
             return;
         }
         context.transactionService().delete(selected.id());
@@ -353,19 +368,10 @@ public class TransactionController {
         descriptionField.setText(transaction.description());
         amountField.setText(transaction.amount().toPlainString().replace(".", ","));
         recurrenceCombo.setValue(transaction.recurrenceType());
-        recurrenceCountField.setText(transaction.recurrenceTotal() == null ? "" : String.valueOf(transaction.recurrenceTotal()));
-        recurrenceEndPicker.setValue(null);
+        recurrenceCountField.setText(transaction.recurrenceTotal() == null
+                ? ""
+                : String.valueOf(Math.max(0, transaction.recurrenceTotal() - 1)));
         updateRecurrenceState();
-    }
-
-    private void prepareNewBasedOnCurrent() {
-        selected = null;
-        table.getSelectionModel().clearSelection();
-        recurrenceCombo.setValue(RecurrenceType.NONE);
-        recurrenceCountField.clear();
-        recurrenceEndPicker.setValue(null);
-        updateRecurrenceState();
-        amountField.requestFocus();
     }
 
     private void clearForm() {
@@ -379,7 +385,6 @@ public class TransactionController {
         amountField.clear();
         recurrenceCombo.setValue(RecurrenceType.NONE);
         recurrenceCountField.clear();
-        recurrenceEndPicker.setValue(null);
         loadCategories(typeCombo.getValue());
         updateRecurrenceState();
     }
@@ -411,8 +416,8 @@ public class TransactionController {
     private VBox transactionHints() {
         return new VBox(10,
                 UiUtils.helperText("Use os filtros para reduzir a análise da tabela ao período, categoria ou método desejado."),
-                UiUtils.helperText("Nova transação mantém os campos atuais para acelerar cadastros parecidos."),
-                UiUtils.helperText("Recorrência gera transações futuras no momento do cadastro e não altera a série ao editar uma ocorrência.")
+                UiUtils.helperText("Use Limpar formulário para sair do modo de edição e iniciar um novo cadastro."),
+                UiUtils.helperText("Recorrência gera transações futuras no momento do cadastro. Ao editar uma série, você escolhe entre alterar somente a ocorrência selecionada ou esta e as próximas.")
         );
     }
 
@@ -428,13 +433,18 @@ public class TransactionController {
     private void updateRecurrenceState() {
         RecurrenceType type = recurrenceCombo.getValue() == null ? RecurrenceType.NONE : recurrenceCombo.getValue();
         boolean editing = selected != null;
-        boolean recurring = type.recurring() && !editing;
-        recurrenceCountField.setDisable(!recurring);
-        recurrenceEndPicker.setDisable(!recurring);
+        boolean recurring = type.recurring();
+        boolean editableQuantity = recurring && !editing;
+        recurrenceCombo.setDisable(editing);
+        recurrenceCountLabel.setVisible(recurring);
+        recurrenceCountLabel.setManaged(recurring);
+        recurrenceCountField.setVisible(recurring);
+        recurrenceCountField.setManaged(recurring);
+        recurrenceCountField.setDisable(!editableQuantity);
         if (editing && type.recurring()) {
-            recurrenceSummary.setText("Esta edição altera somente a ocorrência selecionada.");
+            recurrenceSummary.setText("Ao salvar, escolha alterar somente esta transação ou esta e as próximas.");
         } else if (recurring) {
-            recurrenceSummary.setText("Informe quantidade ou data final. O limite seguro é de 120 ocorrências.");
+            recurrenceSummary.setText("Informe a quantidade de repetições. O máximo é 120.");
         } else {
             recurrenceSummary.setText("Recorrência desativada.");
         }

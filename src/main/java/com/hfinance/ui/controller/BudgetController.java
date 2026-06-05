@@ -10,7 +10,6 @@ import com.hfinance.ui.component.Notification;
 import javafx.collections.FXCollections;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -102,13 +101,11 @@ public class BudgetController {
 
         Button save = UiUtils.primaryButton("Salvar");
         save.setOnAction(event -> save());
-        Button newBudget = UiUtils.secondaryButton("Novo orçamento");
-        newBudget.setOnAction(event -> newSimilar());
         Button reset = UiUtils.secondaryButton("Limpar formulário");
         reset.setOnAction(event -> clear());
         Button delete = UiUtils.dangerButton("Excluir");
         delete.setOnAction(event -> delete());
-        return new VBox(10, grid, UiUtils.actions(save, newBudget, reset), UiUtils.actions(delete));
+        return new VBox(10, grid, UiUtils.actions(save, reset), UiUtils.actions(delete));
     }
 
     private void save() {
@@ -126,7 +123,7 @@ public class BudgetController {
                 Notification.success("Registro atualizado com sucesso.");
             }
             refresh();
-            newSimilar();
+            clear();
         } catch (BusinessException | NumberFormatException ex) {
             Notification.error(ex.getMessage() == null ? "Não foi possível concluir a operação." : ex.getMessage());
         }
@@ -137,7 +134,7 @@ public class BudgetController {
             Notification.error("Selecione um orçamento.");
             return;
         }
-        if (Notification.confirm("Deseja realmente excluir este registro?").orElse(ButtonType.CANCEL) != ButtonType.OK) {
+        if (!Notification.confirm("Deseja realmente excluir este registro?")) {
             return;
         }
         context.budgetService().delete(selected.id());
@@ -169,30 +166,6 @@ public class BudgetController {
         monthCombo.setValue(LocalDate.now().getMonthValue());
         yearField.setText(String.valueOf(LocalDate.now().getYear()));
         limitField.clear();
-    }
-
-    private void newSimilar() {
-        selected = null;
-        table.getSelectionModel().clearSelection();
-        nameField.clear();
-        LocalDate base = selectedPeriod();
-        LocalDate nextMonth = base.plusMonths(1);
-        monthCombo.setValue(nextMonth.getMonthValue());
-        yearField.setText(String.valueOf(nextMonth.getYear()));
-        nameField.requestFocus();
-    }
-
-    private LocalDate selectedPeriod() {
-        int month = monthCombo.getValue() == null ? LocalDate.now().getMonthValue() : monthCombo.getValue();
-        int year;
-        try {
-            year = yearField.getText() == null || yearField.getText().isBlank()
-                    ? LocalDate.now().getYear()
-                    : Integer.parseInt(yearField.getText().trim());
-        } catch (NumberFormatException ex) {
-            year = LocalDate.now().getYear();
-        }
-        return LocalDate.of(year, month, 1);
     }
 
     private void refresh() {
