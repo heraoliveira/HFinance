@@ -10,6 +10,7 @@ import com.hfinance.core.exception.BusinessException;
 import com.hfinance.core.format.MoneyFormatter;
 import com.hfinance.domain.enums.PaymentMethod;
 import com.hfinance.domain.enums.TransactionType;
+import com.hfinance.ui.component.FinancialChartUtils;
 import com.hfinance.ui.component.Notification;
 import javafx.collections.FXCollections;
 import javafx.scene.Node;
@@ -204,9 +205,13 @@ public class ReportController {
     private void updateCharts(ReportDataDTO data) {
         chartsBox.getChildren().setAll(
                 UiUtils.compactPanel("Receitas vs despesas por mês", monthlyChart(data)),
-                UiUtils.compactPanel("Despesas por categoria", pieChart(data.expenseByCategory(),
+                UiUtils.compactPanel("Despesas por categoria", pieChart(
+                        "Despesas por categoria no período",
+                        data.expenseByCategory(),
                         "Nenhuma despesa encontrada no período selecionado.")),
-                UiUtils.compactPanel("Transações por método de pagamento", pieChart(data.byPaymentMethod(),
+                UiUtils.compactPanel("Transações por método de pagamento", pieChart(
+                        "Transações por método de pagamento",
+                        data.byPaymentMethod(),
                         "Nenhuma transação encontrada no período selecionado."))
         );
     }
@@ -218,8 +223,7 @@ public class ReportController {
         CategoryAxis xAxis = new CategoryAxis();
         NumberAxis yAxis = new NumberAxis();
         BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
-        chart.setAnimated(false);
-        chart.setLegendVisible(true);
+        FinancialChartUtils.configureMonthlyBarChart(chart, "Receitas e despesas por mês");
         chart.setMinHeight(250);
         chart.setPrefHeight(270);
         chart.setMaxHeight(300);
@@ -236,31 +240,27 @@ public class ReportController {
             expense.getData().add(new XYChart.Data<>(month, data.monthlyExpense().getOrDefault(month, BigDecimal.ZERO)));
         }
         chart.getData().addAll(income, expense);
+        FinancialChartUtils.installBarTooltips(income);
+        FinancialChartUtils.installBarTooltips(expense);
         return chart;
     }
 
-    private Node pieChart(Map<String, BigDecimal> values, String emptyMessage) {
+    private Node pieChart(String title, Map<String, BigDecimal> values, String emptyMessage) {
         if (values.isEmpty()) {
             return emptyState(emptyMessage);
         }
         PieChart chart = new PieChart();
-        chart.setLegendVisible(true);
-        chart.setLabelsVisible(true);
-        chart.setAnimated(false);
+        FinancialChartUtils.populatePieChart(chart, title, values);
         chart.setMinHeight(230);
         chart.setPrefHeight(250);
-        values.forEach((label, value) -> chart.getData().add(new PieChart.Data(label, value.doubleValue())));
+        chart.setMaxHeight(300);
         return chart;
     }
 
     private Node emptyState(String message) {
-        VBox empty = new VBox(8,
-                UiUtils.helperText(message),
-                UiUtils.helperText("Cadastre transações ou ajuste os filtros para visualizar os dados.")
-        );
-        empty.setMinHeight(110);
-        empty.setPrefHeight(130);
-        return empty;
+        return FinancialChartUtils.emptyState(
+                message,
+                "Cadastre transações ou ajuste os filtros para visualizar os dados.");
     }
 
     private BigDecimal largestExpense(ReportDataDTO data) {

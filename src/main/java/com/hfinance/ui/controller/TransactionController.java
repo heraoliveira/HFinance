@@ -245,7 +245,7 @@ public class TransactionController {
 
     private void delete() {
         if (selected == null) {
-            Notification.error("Selecione uma transação.");
+            Notification.warning("Selecione uma transação.");
             return;
         }
         if (!Notification.confirm("Deseja realmente excluir este registro?")) {

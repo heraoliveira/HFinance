@@ -120,18 +120,21 @@ public class AccountController {
 
     private void deactivate() {
         if (selected == null) {
-            Notification.error("Selecione uma conta.");
+            Notification.warning("Selecione uma conta.");
+            return;
+        }
+        if (!Notification.confirm("Deseja realmente inativar esta conta?")) {
             return;
         }
         context.accountService().deactivate(selected.id());
-        Notification.success("Registro atualizado com sucesso.");
+        Notification.success("Conta inativada com sucesso.");
         clear();
         refresh();
     }
 
     private void delete() {
         if (selected == null) {
-            Notification.error("Selecione uma conta.");
+            Notification.warning("Selecione uma conta.");
             return;
         }
         if (!Notification.confirm("Deseja realmente excluir este registro?")) {

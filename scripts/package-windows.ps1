@@ -1,7 +1,7 @@
 param()
 
 $ErrorActionPreference = "Stop"
-$AppVersion = "1.2.1"
+$AppVersion = "1.2.2"
 $ProjectRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 Set-Location $ProjectRoot
 

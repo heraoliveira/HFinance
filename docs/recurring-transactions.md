@@ -1,6 +1,6 @@
 # Transações Recorrentes
 
-A recorrência da versão 1.2.1 é simples e explícita: as ocorrências futuras são criadas no momento do cadastro.
+A recorrência mantida na versão 1.2.2 é simples e explícita: as ocorrências futuras são criadas no momento do cadastro.
 
 ## Tipos
 

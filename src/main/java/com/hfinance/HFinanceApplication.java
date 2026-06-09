@@ -6,6 +6,7 @@ import com.hfinance.core.config.HFinanceContext;
 import com.hfinance.core.error.ErrorDialogService;
 import com.hfinance.core.error.GlobalExceptionHandler;
 import com.hfinance.core.logging.AppLogger;
+import com.hfinance.ui.component.Notification;
 import com.hfinance.ui.controller.MainController;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -34,6 +35,7 @@ public class HFinanceApplication extends Application {
             return;
         }
         MainController mainController = new MainController(context);
+        GlobalExceptionHandler.installUiNotifier(Notification::error);
         Scene scene = new Scene(mainController.getView(), 1280, 800);
         String css = getClass().getResource("/css/theme.css").toExternalForm();
         scene.getStylesheets().add(css);

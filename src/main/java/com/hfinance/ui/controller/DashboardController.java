@@ -6,6 +6,7 @@ import com.hfinance.application.dto.DashboardSummaryDTO;
 import com.hfinance.application.dto.GoalDTO;
 import com.hfinance.application.dto.TransactionDTO;
 import com.hfinance.core.config.HFinanceContext;
+import com.hfinance.ui.component.FinancialChartUtils;
 import com.hfinance.ui.component.MoneyCard;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -60,7 +61,9 @@ public class DashboardController {
         grid.getColumnConstraints().addAll(leftColumn, rightColumn);
 
         VBox chartPanel = UiUtils.compactPanel("Evolução mensal", monthlyEvolution(summary));
-        VBox categoryChartPanel = UiUtils.compactPanel("Despesas por categoria", categoryChart(summary.currentMonthExpenseByCategory(),
+        VBox categoryChartPanel = UiUtils.compactPanel("Despesas por categoria", categoryChart(
+                summary.currentMonthExpenseByCategory(),
+                "Despesas por categoria no mês atual",
                 "Nenhuma despesa encontrada no mês atual."));
         VBox latestPanel = UiUtils.panel("Últimas transações", latestTable(summary));
         VBox accountPanel = UiUtils.panel("Resumo por conta", accountTable(summary));
@@ -87,14 +90,9 @@ public class DashboardController {
         boolean hasData = summary.monthlyIncome().values().stream().anyMatch(value -> value.signum() > 0)
                 || summary.monthlyExpense().values().stream().anyMatch(value -> value.signum() > 0);
         if (!hasData) {
-            VBox emptyState = new VBox(8,
-                    UiUtils.helperText("Nenhum dado encontrado para a evolução mensal."),
-                    UiUtils.helperText("Cadastre receitas ou despesas para visualizar o gráfico comparativo por mês.")
-            );
-            emptyState.setMinHeight(110);
-            emptyState.setPrefHeight(120);
-            emptyState.setMaxHeight(140);
-            return emptyState;
+            return FinancialChartUtils.emptyState(
+                    "Nenhum dado encontrado para a evolução mensal.",
+                    "Cadastre receitas ou despesas para visualizar o comparativo dos últimos 6 meses.");
         }
         return monthlyChart(summary);
     }
@@ -103,9 +101,7 @@ public class DashboardController {
         CategoryAxis xAxis = new CategoryAxis();
         NumberAxis yAxis = new NumberAxis();
         BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
-        chart.setLegendVisible(true);
-        chart.setAnimated(false);
-        chart.setTitle("Receitas e despesas por mês");
+        FinancialChartUtils.configureMonthlyBarChart(chart, "Receitas e despesas dos últimos 6 meses");
         chart.setMinHeight(230);
         chart.setPrefHeight(250);
         chart.setMaxHeight(270);
@@ -119,28 +115,22 @@ public class DashboardController {
         summary.monthlyExpense().forEach((month, value) -> expense.getData().add(new XYChart.Data<>(month, value)));
 
         chart.getData().addAll(income, expense);
+        FinancialChartUtils.installBarTooltips(income);
+        FinancialChartUtils.installBarTooltips(expense);
         return chart;
     }
 
-    private Region categoryChart(Map<String, BigDecimal> values, String emptyMessage) {
+    private Region categoryChart(Map<String, BigDecimal> values, String title, String emptyMessage) {
         if (values.isEmpty()) {
-            VBox emptyState = new VBox(8,
-                    UiUtils.helperText(emptyMessage),
-                    UiUtils.helperText("Cadastre transações para visualizar a distribuição por categoria.")
-            );
-            emptyState.setMinHeight(230);
-            emptyState.setPrefHeight(250);
-            emptyState.setMaxHeight(270);
-            return emptyState;
+            return FinancialChartUtils.emptyState(
+                    emptyMessage,
+                    "Cadastre despesas para visualizar a distribuição por categoria.");
         }
         PieChart chart = new PieChart();
-        chart.setLegendVisible(true);
-        chart.setLabelsVisible(true);
-        chart.setAnimated(false);
+        FinancialChartUtils.populatePieChart(chart, title, values);
         chart.setMinHeight(230);
         chart.setPrefHeight(250);
         chart.setMaxHeight(270);
-        values.forEach((category, value) -> chart.getData().add(new PieChart.Data(category, value.doubleValue())));
         return chart;
     }
 

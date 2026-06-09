@@ -1,6 +1,6 @@
 # Relatórios e Exportações
 
-A versão 1.2.1 mantém relatórios e exportações na fonte de verdade dos services existentes.
+A versão 1.2.2 mantém relatórios e exportações na fonte de verdade dos services existentes.
 
 ## Relatórios
 
@@ -8,6 +8,8 @@ A versão 1.2.1 mantém relatórios e exportações na fonte de verdade dos serv
 - Atalhos rápidos cobrem este mês, mês anterior, últimos 30 dias, este ano e ano anterior.
 - Cards mostram receitas, despesas, saldo, maior despesa, maior categoria e quantidade de transações.
 - Gráficos usam JavaFX Charts para receitas vs despesas por mês, despesas por categoria e métodos de pagamento.
+- Gráficos exibem títulos, eixos monetários quando aplicável, legendas, percentuais e tooltips em português brasileiro.
+- Estados vazios são exibidos sem eixos ou séries que possam sugerir dados inexistentes.
 - Relatórios vazios não são exportados sem aviso.
 
 ## CSV

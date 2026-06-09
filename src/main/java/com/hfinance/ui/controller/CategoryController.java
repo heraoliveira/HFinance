@@ -145,11 +145,14 @@ public class CategoryController {
 
     private void toggleStatus() {
         if (selected == null) {
-            Notification.error("Selecione uma categoria.");
+            Notification.warning("Selecione uma categoria.");
             return;
         }
         try {
             if (selected.active()) {
+                if (!Notification.confirm("Deseja realmente inativar esta categoria?")) {
+                    return;
+                }
                 context.categoryService().deactivate(selected.id());
                 Notification.success("Categoria inativada com sucesso.");
             } else {
@@ -165,7 +168,7 @@ public class CategoryController {
 
     private void delete() {
         if (selected == null) {
-            Notification.error("Selecione uma categoria.");
+            Notification.warning("Selecione uma categoria.");
             return;
         }
         if (!Notification.confirm("Deseja realmente excluir esta categoria?")) {
