@@ -13,12 +13,14 @@ import javafx.scene.layout.StackPane;
 public class MainController {
     private final StackPane root = new StackPane();
     private final BorderPane shell = new BorderPane();
+    private final StackPane feedbackLayer = new StackPane();
     private final Label title = new Label("Visão geral");
 
     public MainController(HFinanceContext context) {
         shell.getStyleClass().add("app-root");
-        root.getChildren().add(shell);
-        Notification.install(root);
+        feedbackLayer.setPickOnBounds(false);
+        root.getChildren().addAll(shell, feedbackLayer);
+        Notification.install(feedbackLayer);
         title.getStyleClass().add("screen-title");
 
         HBox topbar = new HBox(title);

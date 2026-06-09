@@ -131,7 +131,7 @@ public class GoalController {
 
     private void delete() {
         if (selected == null) {
-            Notification.error("Selecione uma meta.");
+            Notification.warning("Selecione uma meta.");
             return;
         }
         if (!Notification.confirm("Deseja realmente excluir este registro?")) {

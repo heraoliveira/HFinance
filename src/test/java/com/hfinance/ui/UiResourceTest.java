@@ -21,6 +21,11 @@ class UiResourceTest {
         assertThat(css).contains("#FFD700");
         assertThat(css).contains(".modal-backdrop");
         assertThat(css).contains(".toast-success");
+        assertThat(css).contains(".toast-error");
+        assertThat(css).contains(".toast-warning");
+        assertThat(css).contains(".toast-info");
+        assertThat(css).contains(".chart-empty-state");
+        assertThat(css).contains(".financial-chart-tooltip");
         assertThat(css).contains(".category-swatch");
     }
 
@@ -32,7 +37,7 @@ class UiResourceTest {
 
         String script = Files.readString(Path.of("scripts/package-windows.ps1"), StandardCharsets.UTF_8);
         assertThat(script).contains("src\\main\\resources\\images\\app-icon.ico");
-        assertThat(script).contains("$AppVersion = \"1.2.1\"");
+        assertThat(script).contains("$AppVersion = \"1.2.2\"");
         assertThat(script).contains("Remove-FileInsideProject $LooseIconPath");
     }
 
@@ -44,6 +49,14 @@ class UiResourceTest {
         assertThat(notification).doesNotContain("Alert");
         assertThat(notification).contains("modal-backdrop");
         assertThat(notification).contains("confirmRecurringEdit");
+        assertThat(notification).contains("public static void warning");
+        assertThat(notification).contains("public static void info");
+        assertThat(notification).contains("toastStack");
+        assertThat(notification).contains("setMaxHeight(Region.USE_PREF_SIZE)");
+        assertThat(notification).contains("setDefaultButton");
+        assertThat(notification).contains("setCancelButton");
+        assertThat(notification).contains("KeyCode.ESCAPE");
+        assertThat(notification).contains("KeyCode.ENTER");
     }
 
     @Test
@@ -66,5 +79,46 @@ class UiResourceTest {
                 .doesNotContain("Novo orçamento")
                 .doesNotContain("Nova meta")
                 .doesNotContain("recurrenceEndPicker");
+    }
+
+    @Test
+    void financialChartsExposeTitlesAxesTooltipsAndEmptyStates() throws Exception {
+        String helper = Files.readString(
+                Path.of("src/main/java/com/hfinance/ui/component/FinancialChartUtils.java"),
+                StandardCharsets.UTF_8);
+        String dashboard = Files.readString(
+                Path.of("src/main/java/com/hfinance/ui/controller/DashboardController.java"),
+                StandardCharsets.UTF_8);
+        String reports = Files.readString(
+                Path.of("src/main/java/com/hfinance/ui/controller/ReportController.java"),
+                StandardCharsets.UTF_8);
+
+        assertThat(helper)
+                .contains("Mês")
+                .contains("Valor (R$)")
+                .contains("setLegendSide(Side.BOTTOM)")
+                .contains("Tooltip.install")
+                .contains("formatPercentage")
+                .contains("chart-empty-state");
+        assertThat(dashboard)
+                .contains("Receitas e despesas dos últimos 6 meses")
+                .contains("Despesas por categoria no mês atual");
+        assertThat(reports)
+                .contains("Receitas e despesas por mês")
+                .contains("Despesas por categoria no período")
+                .contains("Transações por método de pagamento");
+    }
+
+    @Test
+    void versionIsSynchronizedAtOneTwoTwo() throws Exception {
+        String pom = Files.readString(Path.of("pom.xml"), StandardCharsets.UTF_8);
+        String appVersion = Files.readString(
+                Path.of("src/main/java/com/hfinance/core/config/AppVersion.java"),
+                StandardCharsets.UTF_8);
+        String readme = Files.readString(Path.of("README.md"), StandardCharsets.UTF_8);
+
+        assertThat(pom).contains("<version>1.2.2</version>");
+        assertThat(appVersion).contains("VERSION = \"1.2.2\"");
+        assertThat(readme).contains("Versão atual: **1.2.2**.");
     }
 }

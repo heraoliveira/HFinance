@@ -131,7 +131,7 @@ public class BudgetController {
 
     private void delete() {
         if (selected == null) {
-            Notification.error("Selecione um orçamento.");
+            Notification.warning("Selecione um orçamento.");
             return;
         }
         if (!Notification.confirm("Deseja realmente excluir este registro?")) {

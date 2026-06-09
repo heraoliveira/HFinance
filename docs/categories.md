@@ -1,6 +1,6 @@
 # Categorias
 
-A versão 1.2.1 mantém categorias personalizadas e ajusta regras de exclusão sem alterar a linha desktop local do HFinance.
+A versão 1.2.2 mantém categorias personalizadas e as regras de exclusão da linha desktop local do HFinance.
 
 ## Regras
 

@@ -11,7 +11,7 @@
 
 HFinance surge como uma solução desktop local para organização de finanças pessoais, criada para substituir planilhas e controles manuais por uma experiência clara, visual e em português brasileiro. A aplicação centraliza contas, receitas, despesas, orçamentos, metas financeiras e relatórios exportáveis para apoiar o acompanhamento do dinheiro no dia a dia.
 
-Versão atual: **1.2.1**.
+Versão atual: **1.2.2**.
 
 ## Demonstração
 
@@ -26,6 +26,8 @@ Versão atual: **1.2.1**.
 - Metas financeiras com progresso e status automático.
 - Visão geral com cards, gráficos mensais, despesas por categoria, últimas transações, contas, alertas e metas.
 - Relatórios com filtros preservados na sessão, gráficos, cards de resumo e exportação para Excel `.xlsx` e CSV.
+- Notificações e confirmações integradas, compactas e responsivas, com suporte a teclado.
+- Gráficos financeiros com títulos, eixos, legendas, valores em reais, percentuais e tooltips.
 - Exportações com UTF-8, nomes seguros com timestamp, autofiltro e cabeçalho congelado no Excel.
 - DatePicker estilizado com contraste adequado para mês, ano e dias do calendário.
 - Ícone em ciano e dourado com H maior para janela, barra de tarefas e empacotamento Windows.
@@ -167,11 +169,11 @@ Ele valida Java 17, Maven, `jpackage` e WiX, executa `mvn clean package`, usa o 
 
 ```text
 target/package/HFinance/HFinance.exe
-target/release/HFinance-v1.2.1-windows.zip
-target/release/HFinance-Setup-v1.2.1.exe
+target/release/HFinance-v1.2.2-windows.zip
+target/release/HFinance-Setup-v1.2.2.exe
 ```
 
-O ZIP portátil permite executar a aplicação sem instalador e mantém `HFinance.exe` como único executável visível no topo da pasta empacotada. O instalador Windows `.exe` integra o HFinance ao Windows, cria atalho no Menu Iniciar e usa a versão `1.2.1`.
+O ZIP portátil permite executar a aplicação sem instalador e mantém `HFinance.exe` como único executável visível no topo da pasta empacotada. O instalador Windows `.exe` integra o HFinance ao Windows, cria atalho no Menu Iniciar e usa a versão `1.2.2`.
 
 Ao desinstalar o HFinance, os dados financeiros locais permanecem em `%APPDATA%/HFinance`, salvo remoção manual explícita pelo usuário.
 

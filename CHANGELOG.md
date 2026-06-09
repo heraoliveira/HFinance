@@ -2,6 +2,18 @@
 
 Todas as mudanças relevantes do HFinance são documentadas neste arquivo.
 
+## [1.2.2] - 2026-06-09
+
+### Corrigido
+
+- Corrigido o dimensionamento dos toasts para manter altura baseada no conteúdo e empilhamento no canto superior direito.
+- Corrigido o dimensionamento dos modais internos, com ações responsivas e suporte a Enter e Esc.
+- Adicionados estados de sucesso, erro, alerta e informação às notificações integradas.
+- Direcionados erros inesperados para a interface integrada quando a janela principal já está disponível.
+- Adicionadas confirmações antes de inativar contas e categorias.
+- Completados os gráficos da Visão Geral e Relatórios com títulos, eixos, legendas, tooltips, valores em reais, percentuais e estados vazios.
+- Sincronizada a versão `1.2.2` no Maven, aplicação, documentação e empacotamento Windows.
+
 ## [1.2.1] - 2026-06-05
 
 ### Corrigido

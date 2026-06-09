@@ -266,6 +266,10 @@
     -fx-cursor: hand;
 }
 
+.toast-stack {
+    -fx-fill-width: true;
+}
+
 .toast {
     -fx-background-color: #FFFFFF;
     -fx-background-radius: 8;
@@ -283,6 +287,14 @@
     -fx-border-color: #EF4444;
 }
 
+.toast-warning {
+    -fx-border-color: #F59E0B;
+}
+
+.toast-info {
+    -fx-border-color: #0891B2;
+}
+
 .toast-title {
     -fx-text-fill: #1F2937;
     -fx-font-size: 14px;
@@ -292,6 +304,31 @@
 .toast-message {
     -fx-text-fill: #475569;
     -fx-font-size: 13px;
+}
+
+.toast-close {
+    -fx-background-color: transparent;
+    -fx-text-fill: #64748B;
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-padding: 0 2;
+    -fx-cursor: hand;
+}
+
+.toast-close:hover {
+    -fx-text-fill: #1F2937;
+    -fx-background-color: #F1F5F9;
+    -fx-background-radius: 4;
+}
+
+.toast-message-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 0;
+}
+
+.toast-message-scroll > .viewport {
+    -fx-background-color: transparent;
 }
 
 .modal-backdrop {
@@ -319,6 +356,10 @@
     -fx-text-fill: #475569;
     -fx-font-size: 14px;
     -fx-line-spacing: 3;
+}
+
+.modal-actions {
+    -fx-padding: 4 0 0 0;
 }
 
 .table-view {
@@ -350,6 +391,69 @@
     -fx-border-radius: 999;
     -fx-border-color: rgba(15, 23, 42, 0.18);
     -fx-border-width: 1;
+}
+
+.chart {
+    -fx-padding: 8 4 4 4;
+}
+
+.chart-title {
+    -fx-text-fill: #1F2937;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+}
+
+.axis-label {
+    -fx-text-fill: #475569;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.axis {
+    -fx-tick-label-fill: #64748B;
+    -fx-font-size: 11px;
+}
+
+.chart-legend {
+    -fx-background-color: transparent;
+    -fx-padding: 8 0 0 0;
+}
+
+.chart-legend-item {
+    -fx-text-fill: #475569;
+    -fx-font-size: 11px;
+}
+
+.chart-pie-label {
+    -fx-fill: #334155;
+    -fx-font-size: 11px;
+}
+
+.financial-chart-tooltip {
+    -fx-background-color: #1F2937;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 12px;
+    -fx-padding: 9 11;
+    -fx-background-radius: 6;
+}
+
+.chart-empty-state {
+    -fx-background-color: #F8FCFE;
+    -fx-background-radius: 6;
+    -fx-border-color: #D7EEF5;
+    -fx-border-radius: 6;
+    -fx-padding: 18;
+}
+
+.chart-empty-title {
+    -fx-text-fill: #334155;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.chart-empty-message {
+    -fx-text-fill: #64748B;
+    -fx-font-size: 12px;
 }
 
 .chart-bar.default-color0 {
